@@ -55,6 +55,7 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'net.coobird:thumbnailator:0.4.8'
     implementation 'org.modelmapper:modelmapper:3.2.0'
+    
 
     // TELEGRAM
     implementation 'org.telegram:telegrambots:6.9.7.1'
@@ -64,7 +65,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
+ implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.9'
     // REDIS CLIENT
     implementation 'redis.clients:jedis:5.1.0'
 
