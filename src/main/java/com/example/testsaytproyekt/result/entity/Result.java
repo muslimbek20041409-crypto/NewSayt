@@ -23,8 +23,9 @@ public class Result {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn( nullable = false)
+@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "student_id", nullable = false)
+    @JsonIgnore
     private Student student;
 
     @ManyToOne
