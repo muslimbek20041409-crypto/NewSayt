@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                    radial-gradient(circle at top left, rgba(59,130,246,0.28), transparent 30%),
+                    radial-gradient(circle at bottom right, rgba(34,197,94,0.18), transparent 26%),
+                    linear-gradient(135deg, #0f172a, #1d4ed8, #0f766e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            color: white;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.16);
+            backdrop-filter: blur(14px);
+            padding: 30px 24px;
+            border-radius: 24px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.28);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(191,219,254,0.45);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: white;
+            color: #1d4ed8;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #dbeafe;
+        }
+
+        .message {
+            margin-top: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success { color: #86efac; }
+        .error { color: #fecaca; }
+        .info { color: #bfdbfe; }
+
+        .links {
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .links a {
+            display: block;
+            color: #dbeafe;
+            font-size: 14px;
+            margin-top: 6px;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Sign In</h2>
+
+    <form id="loginForm">
+        <label>Username</label>
+        <input id="username" placeholder="Enter username" required>
+
+        <label>Password</label>
+        <input id="password" type="password" placeholder="Enter password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="links">
+        <a href="/api/v1/Change_Password.html">Forgot password?</a>
+        <a href="/api/v1/auth.html">Create account</a>
+    </div>
+
+    <div class="message" id="msg"></div>
+</div>
+
+<script>
+    const BASE = window.location.origin + "/api/v1";
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("msg");
+
+    function setMessage(text, type) {
+        msg.innerText = text;
+        msg.className = "message " + type;
+    }
+
+    function redirect(role) {
+        if (role === "ADMIN") {
+            window.location.href = "/api/v1/Admin.html";
+        } else if (role === "TEACHER") {
+            window.location.href = "/api/v1/Teacher.html";
+        } else {
+            window.location.href = "/api/v1/Users.html";
+        }
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = {
+            username: username.value.trim(),
+            password: password.value
+        };
+
+        try {
+            setMessage("Logging in...", "info");
+
+            const res = await fetch(BASE + "/auth/sign-in", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json().catch(() => null);
+
+            if (res.ok && result) {
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("user", JSON.stringify(result));
+
+                setMessage("Success!", "success");
+
+                setTimeout(() => redirect(result.role), 600);
+            } else {
+                setMessage("Login failed", "error");
+            }
+
+        } catch (err) {
+            console.error(err);
+            setMessage("Server error", "error");
+        }
+    });
+</script>
+
+</body>
+</html>

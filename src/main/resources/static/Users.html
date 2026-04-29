@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>O‘quvchi paneli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #070b12;
+            --surface: #0c1220;
+            --surface-2: #111827;
+            --surface-3: #182235;
+            --border: rgba(148, 163, 184, .12);
+            --border-strong: rgba(99, 102, 241, .36);
+            --primary: #4f8cff;
+            --primary-2: #7c5cfc;
+            --success: #22d3a0;
+            --danger: #ff6b7a;
+            --warning: #ffc14d;
+            --text: #e6eeff;
+            --muted: #8a99bb;
+            --muted-2: #596982;
+            --radius: 20px;
+            --shadow: 0 24px 80px rgba(0,0,0,.35);
+            --sidebar: 264px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            background:
+                    radial-gradient(circle at top left, rgba(79,140,255,.12), transparent 32rem),
+                    radial-gradient(circle at bottom right, rgba(124,92,252,.10), transparent 34rem),
+                    var(--bg);
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .36;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+        }
+
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar);
+            min-height: 100vh;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            padding: 26px 16px;
+            background: rgba(12,18,32,.86);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 28px;
+        }
+
+        .brand__mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 0 28px rgba(79,140,255,.28);
+        }
+
+        .brand__title {
+            font-family: 'Fraunces', serif;
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: -.4px;
+        }
+
+        .brand__subtitle { color: var(--muted-2); font-size: 11px; margin-top: 2px; }
+        .nav-label { color: var(--muted-2); font-size: 10px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; padding: 0 12px; margin: 8px 0; }
+
+        .nav-btn {
+            width: 100%;
+            border: 1px solid transparent;
+            border-radius: 14px;
+            padding: 12px 13px;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--muted);
+            background: transparent;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .18s ease;
+        }
+
+        .nav-btn:hover { color: var(--text); background: rgba(255,255,255,.035); }
+        .nav-btn.active { color: #fff; background: linear-gradient(135deg, rgba(79,140,255,.18), rgba(124,92,252,.12)); border-color: var(--border-strong); }
+        .nav-btn.danger { color: rgba(255,107,122,.78); margin-top: auto; }
+        .nav-btn.danger:hover { color: var(--danger); background: rgba(255,107,122,.08); }
+        .nav-icon { width: 22px; text-align: center; }
+
+        .main {
+            width: calc(100% - var(--sidebar));
+            margin-left: var(--sidebar);
+            padding: 34px 38px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 30px; }
+        .title { font-family: 'Fraunces', serif; font-size: clamp(26px, 3vw, 34px); font-weight: 900; letter-spacing: -.7px; }
+        .subtitle { color: var(--muted-2); font-size: 14px; margin-top: 6px; }
+
+        .student-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: max-content;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border-strong);
+            background: rgba(17,24,39,.78);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success); }
+
+        .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+        .stat, .card, .item-card, .question-card, .result-card {
+            border: 1px solid var(--border);
+            background: rgba(12,18,32,.82);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 0 rgba(255,255,255,.04) inset;
+        }
+
+        .stat { padding: 20px; position: relative; overflow: hidden; transition: .2s ease; }
+        .stat:hover, .item-card:hover, .result-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+        .stat::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+        .stat__icon { font-size: 23px; opacity: .8; margin-bottom: 10px; }
+        .stat__label { color: var(--muted-2); font-size: 11px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+        .stat__value { font-family: 'Fraunces', serif; font-size: 34px; font-weight: 900; margin-top: 5px; }
+
+        .message { min-height: 24px; margin: 0 0 14px; font-size: 13px; font-weight: 800; }
+        .message.success { color: var(--success); }
+        .message.error { color: var(--danger); }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeUp .25s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { padding: 24px; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+        .section-head h2, .item-title, .question-text { font-family: 'Fraunces', serif; font-weight: 900; }
+        .section-head h2 { font-size: 20px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 13px;
+            padding: 11px 17px;
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            transition: .18s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); box-shadow: 0 10px 30px rgba(79,140,255,.22); }
+        .btn-success { background: linear-gradient(135deg, #059669, var(--success)); box-shadow: 0 10px 26px rgba(34,211,160,.16); }
+        .btn-soft { color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+        .btn-soft:hover { color: var(--text); border-color: var(--border-strong); }
+        .btn-sm { padding: 8px 12px; border-radius: 10px; font-size: 12px; }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            padding: 34px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(79,140,255,.16);
+            background: linear-gradient(135deg, rgba(79,140,255,.12), rgba(124,92,252,.06));
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+        }
+        .hero h2 { font-family: 'Fraunces', serif; font-size: 26px; margin-bottom: 8px; }
+        .hero p { max-width: 560px; color: var(--muted); line-height: 1.75; font-size: 14px; }
+        .hero__emoji { font-size: 70px; opacity: .62; }
+
+        .quick-grid, .profile-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+        .quick-action, .profile-card { border: 1px solid var(--border); border-radius: 16px; background: rgba(12,18,32,.76); padding: 20px; }
+        .quick-action { cursor: pointer; transition: .2s ease; }
+        .quick-action:hover { transform: translateY(-2px); border-color: var(--border-strong); background: rgba(79,140,255,.06); }
+        .quick-action__icon { font-size: 27px; margin-bottom: 10px; }
+        .quick-action__title, .profile-card__value { font-family: 'Fraunces', serif; font-weight: 900; }
+        .quick-action__desc, .profile-card__label, .muted { color: var(--muted-2); font-size: 13px; line-height: 1.65; }
+        .profile-card__label { text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; }
+        .profile-card__value { font-size: 18px; }
+
+        .list { display: grid; gap: 12px; }
+        .empty { text-align: center; padding: 38px 10px; color: var(--muted-2); }
+        .item-card, .result-card { padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; transition: .2s ease; }
+        .item-title { font-size: 17px; margin-bottom: 7px; }
+
+        .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; margin: 2px 5px 2px 0; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; }
+        .tag-blue { color: var(--primary); background: rgba(79,140,255,.12); }
+        .tag-green { color: var(--success); background: rgba(34,211,160,.12); }
+
+        .question-card { padding: 22px; margin-bottom: 14px; }
+        .question-meta { color: var(--primary); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .question-text { font-size: 18px; line-height: 1.45; margin-bottom: 14px; }
+        .answer-option { display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 8px; border-radius: 14px; background: rgba(17,24,39,.72); border: 1px solid var(--border); cursor: pointer; transition: .18s ease; }
+        .answer-option:hover, .answer-option.selected { border-color: var(--primary); background: rgba(79,140,255,.08); }
+        .answer-option input { accent-color: var(--primary); }
+        .option-letter { width: 27px; height: 27px; flex: 0 0 27px; display: grid; place-items: center; border-radius: 9px; color: var(--primary); background: var(--surface-3); font-size: 12px; font-weight: 900; }
+
+        .match-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 15px; background: rgba(17,24,39,.72); }
+        .match-left { display: flex; align-items: center; gap: 9px; font-weight: 800; }
+        select { width: 100%; padding: 12px 13px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px; outline: none; }
+        option { background: var(--surface-2); }
+
+        .submit-bar { position: sticky; bottom: 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 22px; padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: 18px; background: rgba(12,18,32,.92); backdrop-filter: blur(18px); box-shadow: var(--shadow); }
+
+        .result-reveal { margin-top: 22px; padding: 26px; border-radius: var(--radius); border: 1px solid rgba(34,211,160,.22); background: linear-gradient(135deg, rgba(34,211,160,.10), rgba(79,140,255,.06)); }
+        .result-reveal h2 { font-family: 'Fraunces', serif; color: var(--success); margin-bottom: 16px; }
+        .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .result-mini { border: 1px solid var(--border); border-radius: 15px; background: rgba(12,18,32,.78); padding: 16px; text-align: center; }
+        .result-mini small { display: block; color: var(--muted-2); text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: .8px; margin-bottom: 6px; }
+        .result-mini b { font-family: 'Fraunces', serif; font-size: 26px; }
+
+        .percent-ring { --value: 0deg; width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--success) var(--value), var(--surface-3) 0); position: relative; flex-shrink: 0; }
+        .percent-ring::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--surface); }
+        .percent-ring span { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-weight: 900; font-size: 14px; }
+
+        @media (max-width: 1100px) {
+            .app { display: block; }
+            .sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; }
+            .brand { width: 100%; padding-bottom: 14px; }
+            .nav-label { display: none; }
+            .nav-btn { width: auto; }
+            .nav-btn.danger { margin-top: 2px; }
+            .main { width: 100%; margin-left: 0; padding: 22px; }
+            .stats, .quick-grid, .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
+            .topbar, .hero, .item-card, .result-card, .submit-bar { flex-direction: column; align-items: stretch; }
+            .stats, .quick-grid, .profile-grid, .result-grid, .match-row { grid-template-columns: 1fr; }
+            .hero__emoji { display: none; }
+            .main { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand__mark">🎓</div>
+            <div>
+                <div class="brand__title">EduPanel</div>
+                <div class="brand__subtitle">O‘quvchi platformasi</div>
+            </div>
+        </div>
+
+        <div class="nav-label">Navigatsiya</div>
+        <button class="nav-btn active" data-section="dashboard"><span class="nav-icon">🏠</span> Asosiy panel</button>
+        <button class="nav-btn" data-section="testsSection" data-action="loadTests"><span class="nav-icon">📋</span> Testlar</button>
+        <button class="nav-btn" data-section="resultsSection" data-action="loadResults"><span class="nav-icon">📊</span> Mening natijalarim</button>
+        <button class="nav-btn" data-section="profileSection"><span class="nav-icon">👤</span> Profil</button>
+        <button class="nav-btn danger" id="logoutBtn"><span class="nav-icon">🚪</span> Chiqish</button>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1 class="title" id="pageTitle">Asosiy panel</h1>
+                <p class="subtitle" id="pageSub">Bugun qanday test ishlashni xohlaysiz?</p>
+            </div>
+            <div class="student-pill"><span class="status-dot"></span><span id="studentNameTop">O‘quvchi</span></div>
+        </header>
+
+        <div class="stats">
+            <div class="stat"><div class="stat__icon">📚</div><div class="stat__label">Mavjud testlar</div><div class="stat__value" id="testCount">0</div></div>
+            <div class="stat"><div class="stat__icon">✅</div><div class="stat__label">Ishlangan</div><div class="stat__value" id="resultCount">0</div></div>
+            <div class="stat"><div class="stat__icon">📈</div><div class="stat__label">O‘rtacha natija</div><div class="stat__value" id="avgPercent">0%</div></div>
+            <div class="stat"><div class="stat__icon">🏆</div><div class="stat__label">Eng yaxshi</div><div class="stat__value" id="bestPercent">0%</div></div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <section id="dashboard" class="section active">
+            <div class="hero">
+                <div>
+                    <h2>Xush kelibsiz, <span id="welcomeName">O‘quvchi</span>! 👋</h2>
+                    <p>Bu panel orqali testlarni ishlashingiz, natijangizni darhol ko‘rishingiz va barcha yutuqlaringizni kuzatishingiz mumkin.</p>
+                </div>
+                <div class="hero__emoji">🧑‍🎓</div>
+            </div>
+            <div class="quick-grid">
+                <div class="quick-action" data-section="testsSection" data-action="loadTests"><div class="quick-action__icon">📋</div><div class="quick-action__title">Testlarni ko‘rish</div><div class="quick-action__desc">Mavjud barcha testlar</div></div>
+                <div class="quick-action" data-section="resultsSection" data-action="loadResults"><div class="quick-action__icon">📊</div><div class="quick-action__title">Mening natijalarim</div><div class="quick-action__desc">Barcha topshiriqlarim</div></div>
+                <div class="quick-action" data-section="profileSection"><div class="quick-action__icon">👤</div><div class="quick-action__title">Profil</div><div class="quick-action__desc">Shaxsiy ma‘lumotlar</div></div>
+            </div>
+        </section>
+
+        <section id="profileSection" class="section">
+            <div class="card">
+                <div class="section-head"><h2>Profil ma‘lumotlari</h2></div>
+                <div class="profile-grid">
+                    <div class="profile-card"><div class="profile-card__label">Ism familiya</div><div class="profile-card__value" id="studentName">-</div></div>
+                    <div class="profile-card"><div class="profile-card__label">Username</div><div class="profile-card__value" id="studentUsername">-</div></div>
+                    <div class="profile-card"><div class="profile-card__label">Rol</div><div class="profile-card__value" id="studentRole">STUDENT</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testsSection" class="section">
+            <div class="card">
+                <div class="section-head"><h2>Mavjud testlar</h2><button class="btn btn-soft btn-sm" id="refreshTestsBtn">🔄 Yangilash</button></div>
+                <div id="testsList" class="list"></div>
+            </div>
+        </section>
+
+        <section id="solveSection" class="section">
+            <div class="card">
+                <div class="section-head"><h2>Testni ishlash</h2><button class="btn btn-soft btn-sm" data-section="testsSection">← Ortga</button></div>
+                <div id="solveBox"></div>
+            </div>
+        </section>
+
+        <section id="resultsSection" class="section">
+            <div class="card">
+                <div class="section-head"><h2>Mening natijalarim</h2><button class="btn btn-soft btn-sm" id="refreshResultsBtn">🔄 Yangilash</button></div>
+                <div id="resultsList" class="list"></div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    'use strict';
+
+    const CONFIG = {
+        baseUrl: `${window.location.origin}/api/v1`,
+        loginPage: '/api/v1/sign-in.html'
+    };
+
+    const state = {
+        token: localStorage.getItem('token'),
+        user: parseJson(localStorage.getItem('user')) || {},
+        tests: [],
+        results: [],
+        currentTest: null
+    };
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    const pageMeta = {
+        dashboard: { title: 'Asosiy panel', sub: 'Bugun qanday test ishlashni xohlaysiz?' },
+        profileSection: { title: 'Profil', sub: 'Shaxsiy ma‘lumotlaringiz' },
+        testsSection: { title: 'Testlar', sub: 'Barcha mavjud testlar ro‘yxati' },
+        solveSection: { title: 'Testni ishlash', sub: 'Savollarni diqqat bilan o‘qing' },
+        resultsSection: { title: 'Mening natijalarim', sub: 'Barcha topshirgan testlaringiz' }
+    };
+
+    function parseJson(value) {
+        try { return value ? JSON.parse(value) : null; } catch { return null; }
+    }
+
+    function escapeHtml(value = '') {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function normalizeArray(data) {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data?.content)) return data.content;
+        if (Array.isArray(data?.data)) return data.data;
+        return [];
+    }
+
+    function authHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+        };
+    }
+
+    async function api(path, options = {}) {
+        const response = await fetch(`${CONFIG.baseUrl}${path}`, {
+            ...options,
+            headers: { ...authHeaders(), ...(options.headers || {}) }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            showMessage('Sessiya tugagan. Qayta tizimga kiring.', 'error');
+            setTimeout(logout, 700);
+            throw new Error(`Unauthorized: ${response.status}`);
+        }
+
+        const text = await response.text();
+        const data = parseJson(text);
+
+        if (!response.ok) {
+            const message = data?.message || `Xatolik: ${response.status}`;
+            throw new Error(message);
+        }
+
+        return data;
+    }
+
+    function showMessage(text, type = 'success') {
+        const message = $('#message');
+        message.textContent = `${type === 'success' ? '✓' : '⚠'} ${text}`;
+        message.className = `message ${type}`;
+        window.clearTimeout(showMessage.timer);
+        showMessage.timer = window.setTimeout(() => {
+            message.textContent = '';
+            message.className = 'message';
+        }, 3500);
+    }
+
+    function setLoading(container, text) {
+        container.innerHTML = `<p class="empty">${escapeHtml(text)}</p>`;
+    }
+
+    function showSection(sectionId) {
+        $$('.section').forEach(section => section.classList.remove('active'));
+        $(`#${sectionId}`)?.classList.add('active');
+
+        $$('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.section === sectionId));
+
+        const meta = pageMeta[sectionId] || pageMeta.dashboard;
+        $('#pageTitle').textContent = meta.title;
+        $('#pageSub').textContent = meta.sub;
+    }
+
+    function getFullName() {
+        const user = state.user;
+        return user.fullName || user.full_name || user.name ||
+            [user.firstName, user.lastName].filter(Boolean).join(' ') ||
+            user.username || 'O‘quvchi';
+    }
+
+    function fillProfile() {
+        const fullName = getFullName();
+        $('#studentNameTop').textContent = fullName;
+        $('#studentName').textContent = fullName;
+        $('#studentUsername').textContent = state.user.username || state.user.login || '-';
+        $('#studentRole').textContent = state.user.role || 'STUDENT';
+        $('#welcomeName').textContent = fullName;
+    }
+
+    async function loadTests() {
+        const list = $('#testsList');
+        setLoading(list, 'Testlar yuklanmoqda…');
+
+        try {
+            const data = await api('/test');
+            state.tests = normalizeArray(data);
+            renderTests();
+            updateStats();
+        } catch (error) {
+            list.innerHTML = `<p class="empty">${escapeHtml(error.message || 'Testlarni yuklab bo‘lmadi.')}</p>`;
+        }
+    }
+
+    function renderTests() {
+        const list = $('#testsList');
+
+        if (!state.tests.length) {
+            list.innerHTML = '<p class="empty">Hozircha testlar mavjud emas.</p>';
+            return;
+        }
+
+        list.innerHTML = state.tests.map(test => {
+            const questionsCount = Array.isArray(test.questions) ? test.questions.length : 0;
+            const title = test.title || test.name || 'Nomsiz test';
+            const teacher = test.teacherFullName || test.professorFullName || test.teacherName || '—';
+
+            return `
+        <article class="item-card">
+          <div>
+            <div class="item-title">${escapeHtml(title)}</div>
+            <span class="tag tag-blue">${questionsCount} savol</span>
+            <div class="muted">👨‍🏫 ${escapeHtml(teacher)}</div>
+          </div>
+          <button class="btn btn-primary" data-start-test="${escapeHtml(test.id)}">▶ Boshlash</button>
+        </article>
+      `;
+        }).join('');
+    }
+
+    async function startTest(testId) {
+        try {
+            const test = await api(`/test/${encodeURIComponent(testId)}`);
+            state.currentTest = test;
+            renderSolveTest(test);
+            showSection('solveSection');
+        } catch (error) {
+            showMessage(error.message || 'Testni ochib bo‘lmadi.', 'error');
+        }
+    }
+
+    function renderSolveTest(test) {
+        const box = $('#solveBox');
+        const questions = Array.isArray(test.questions) ? test.questions : [];
+
+        if (!questions.length) {
+            box.innerHTML = '<p class="empty">Bu testda savollar topilmadi.</p>';
+            return;
+        }
+
+        const header = `
+      <article class="item-card" style="margin-bottom:20px">
+        <div>
+          <div class="item-title">${escapeHtml(test.title || 'Test')}</div>
+          <span class="tag tag-blue">${questions.length} savol</span>
+          <div class="muted">👨‍🏫 ${escapeHtml(test.teacherFullName || test.professorFullName || '—')}</div>
+        </div>
+      </article>
+    `;
+
+        const questionsHtml = questions.map((question, index) => `
+      <article class="question-card">
+        <div class="question-meta">Savol ${index + 1} · ${translateType(question.questionType)} · ${question.points || 0} ball</div>
+        <div class="question-text">${escapeHtml(question.questionText || 'Savol')}</div>
+        ${renderQuestionInput(question)}
+      </article>
+    `).join('');
+
+        box.innerHTML = `
+      ${header}
+      <form id="solveForm">
+        ${questionsHtml}
+        <div class="submit-bar">
+          <div class="muted">Barcha savollarga javob bergandan so‘ng yakunlang.<br><b>${questions.length} ta savol</b></div>
+          <button type="submit" class="btn btn-success">💾 Yakunlash</button>
+        </div>
+      </form>
+      <div id="instantResultBox"></div>
+    `;
+    }
+
+    function renderQuestionInput(question) {
+        const id = question.id;
+        const answers = Array.isArray(question.allAnswers) ? question.allAnswers : [];
+
+        if (question.questionType === 'SINGLE_CHOICE' || question.questionType === 'MULTIPLE_CHOICE') {
+            if (!answers.length) return '<p class="muted">Variantlar yo‘q.</p>';
+            const type = question.questionType === 'SINGLE_CHOICE' ? 'radio' : 'checkbox';
+
+            return answers.map((answer, index) => `
+        <label class="answer-option">
+          <input type="${type}" name="q-${escapeHtml(id)}" value="${getLetter(index)}">
+          <span class="option-letter">${getLetter(index)}</span>
+          <span>${escapeHtml(answer)}</span>
+        </label>
+      `).join('');
+        }
+
+        if (question.questionType === 'TRUE_FALSE') {
+            return `
+        <label class="answer-option"><input type="radio" name="q-${escapeHtml(id)}" value="HA"><span class="option-letter">✅</span><span>Ha</span></label>
+        <label class="answer-option"><input type="radio" name="q-${escapeHtml(id)}" value="YOQ"><span class="option-letter">❌</span><span>Yo‘q</span></label>
+      `;
+        }
+
+        if (question.questionType === 'MATCHING') {
+            const leftItems = Array.isArray(question.leftItems) ? question.leftItems : [];
+            const rightItems = Array.isArray(question.rightItems) ? question.rightItems : [];
+
+            if (!leftItems.length || !rightItems.length) return '<p class="muted">Elementlar topilmadi.</p>';
+
+            return leftItems.map((left, index) => `
+        <div class="match-row">
+          <div class="match-left"><span class="option-letter">${index + 1}</span>${escapeHtml(left)}</div>
+          <select name="q-${escapeHtml(id)}-match-${index}">
+            <option value="">Mos javobni tanlang…</option>
+            ${rightItems.map((right, rIndex) => `
+              <option value="${index + 1}-${String.fromCharCode(97 + rIndex)}">
+                ${String.fromCharCode(65 + rIndex)}. ${escapeHtml(right)}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+      `).join('');
+        }
+
+        return '<p class="muted">Bu savol turi qo‘llab-quvvatlanmaydi.</p>';
+    }
+
+    async function submitTest() {
+        const test = state.currentTest;
+        if (!test?.id) return showMessage('Test topilmadi.', 'error');
+
+        const answers = collectAnswers(test.questions || []);
+        if (!answers.length) return showMessage('Kamida bitta savolga javob bering.', 'error');
+
+        const submitButton = $('#solveForm button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Hisoblanmoqda…';
+
+        try {
+            const result = await api('/result', {
+                method: 'POST',
+                body: JSON.stringify({ testId: test.id, answers })
+            });
+
+            showInstantResult(result);
+            await loadResults(false);
+        } catch (error) {
+            showMessage(error.message || 'Natija hisoblanmadi.', 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = '💾 Yakunlash';
+        }
+    }
+
+    function collectAnswers(questions) {
+        const answers = [];
+
+        questions.forEach(question => {
+            const id = question.id;
+
+            if (question.questionType === 'SINGLE_CHOICE' || question.questionType === 'TRUE_FALSE') {
+                const checked = $(`input[name="q-${CSS.escape(String(id))}"]:checked`);
+                if (checked) answers.push({ questionId: id, answer: checked.value });
+            }
+
+            if (question.questionType === 'MULTIPLE_CHOICE') {
+                const checked = $$(`input[name="q-${CSS.escape(String(id))}"]:checked`).map(input => input.value);
+                if (checked.length) answers.push({ questionId: id, answer: checked.join(',') });
+            }
+
+            if (question.questionType === 'MATCHING') {
+                const pairs = $$(`select[name^="q-${CSS.escape(String(id))}-match-"]`).map(select => select.value).filter(Boolean);
+                if (pairs.length) answers.push({ questionId: id, answer: pairs.join(',') });
+            }
+        });
+
+        return answers;
+    }
+
+    function showInstantResult(result = {}) {
+        const percent = Math.round(Number(result.percentage || 0));
+
+        $('#instantResultBox').innerHTML = `
+      <div class="result-reveal">
+        <h2>🎉 Natijangiz tayyor!</h2>
+        <div class="result-grid">
+          <div class="result-mini"><small>Ball</small><b>${result.score ?? 0}</b></div>
+          <div class="result-mini"><small>Jami ball</small><b>${result.totalPoints ?? 0}</b></div>
+          <div class="result-mini"><small>Foiz</small><b style="color:var(--success)">${percent}%</b></div>
+        </div>
+        <p class="muted" style="margin-top:14px">📅 Topshirildi: ${formatDate(result.submittedAt)}</p>
+      </div>
+    `;
+
+        showMessage('Natija muvaffaqiyatli saqlandi!');
+        $('#instantResultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function loadResults(render = true) {
+        const list = $('#resultsList');
+        if (render) setLoading(list, 'Natijalar yuklanmoqda…');
+
+        try {
+            const data = await api('/result/my');
+            state.results = normalizeArray(data);
+            renderResults();
+            updateStats();
+        } catch (error) {
+            if (render) list.innerHTML = `<p class="empty">${escapeHtml(error.message || 'Natijalarni yuklab bo‘lmadi.')}</p>`;
+        }
+    }
+
+    function renderResults() {
+        const list = $('#resultsList');
+
+        if (!state.results.length) {
+            list.innerHTML = '<p class="empty">Hali natijalar mavjud emas.</p>';
+            return;
+        }
+
+        list.innerHTML = state.results.map(result => {
+            const percent = Math.round(Number(result.percentage || 0));
+            return `
+        <article class="result-card">
+          <div>
+            <div class="item-title">${escapeHtml(result.testTitle || result.testName || 'Test')}</div>
+            <span class="tag tag-blue">${result.score ?? 0} / ${result.totalPoints ?? 0} ball</span>
+            <div class="muted">📅 ${formatDate(result.submittedAt)}</div>
+          </div>
+          <div class="percent-ring" style="--value:${percent * 3.6}deg"><span>${percent}%</span></div>
+        </article>
+      `;
+        }).join('');
+    }
+
+    function updateStats() {
+        $('#testCount').textContent = state.tests.length;
+        $('#resultCount').textContent = state.results.length;
+
+        if (!state.results.length) {
+            $('#avgPercent').textContent = '0%';
+            $('#bestPercent').textContent = '0%';
+            return;
+        }
+
+        const percentages = state.results.map(result => Number(result.percentage || 0));
+        const average = percentages.reduce((sum, value) => sum + value, 0) / percentages.length;
+        const best = Math.max(...percentages);
+
+        $('#avgPercent').textContent = `${Math.round(average)}%`;
+        $('#bestPercent').textContent = `${Math.round(best)}%`;
+    }
+
+    function translateType(type) {
+        return {
+            SINGLE_CHOICE: 'Yagona tanlov',
+            MULTIPLE_CHOICE: 'Ko‘p tanlovli',
+            TRUE_FALSE: 'Ha / Yo‘q',
+            MATCHING: 'Moslashtirish'
+        }[type] || type || '-';
+    }
+
+    function getLetter(index) {
+        return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[index] || String(index + 1);
+    }
+
+    function formatDate(value) {
+        if (!value) return 'Hozir';
+        return new Date(value).toLocaleString('uz-UZ');
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = CONFIG.loginPage;
+    }
+
+    function bindEvents() {
+        document.addEventListener('click', event => {
+            const sectionTrigger = event.target.closest('[data-section]');
+            if (sectionTrigger) {
+                const action = sectionTrigger.dataset.action;
+                if (action === 'loadTests') loadTests();
+                if (action === 'loadResults') loadResults();
+                showSection(sectionTrigger.dataset.section);
+            }
+
+            const startButton = event.target.closest('[data-start-test]');
+            if (startButton) startTest(startButton.dataset.startTest);
+        });
+
+        document.addEventListener('change', event => {
+            if (!event.target.matches('.answer-option input')) return;
+            const name = event.target.name;
+            $$(`.answer-option input[name="${CSS.escape(name)}"]`).forEach(input => {
+                input.closest('.answer-option').classList.toggle('selected', input.checked);
+            });
+        });
+
+        document.addEventListener('submit', event => {
+            if (event.target.id === 'solveForm') {
+                event.preventDefault();
+                submitTest();
+            }
+        });
+
+        $('#logoutBtn').addEventListener('click', logout);
+        $('#refreshTestsBtn').addEventListener('click', loadTests);
+        $('#refreshResultsBtn').addEventListener('click', () => loadResults());
+    }
+
+    async function init() {
+        if (!state.token) {
+            window.location.href = CONFIG.loginPage;
+            return;
+        }
+
+        fillProfile();
+        bindEvents();
+        await Promise.allSettled([loadTests(), loadResults(false)]);
+        showSection('dashboard');
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/v1
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+    open-in-view: false
+
+
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60000
+      database: 0
+
+
+
+security:
+  jwt:
+    key: ${JWT_SECRET_KEY:WC+qbHYl2B0o02421L+2UayDp2LtczY/3cSkAyErfTjmcEOXNtyjXq0un/SdY4cw}
+    issuer: "https://secure-java-sayd.com"
+    expiration: 259200000
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tagsSorter: alpha
+    persistAuthorization: true

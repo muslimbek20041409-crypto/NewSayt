@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Inter, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
+            color: #e5e7eb;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 270px;
+            min-height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 24px;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .role {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 28px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 14px;
+            cursor: pointer;
+            text-align: left;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .menu-btn:hover,
+        .menu-btn.active {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .logout {
+            margin-top: 25px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        .main {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            padding: 28px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .badge {
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        .stat-card span {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .stat-card h2 {
+            margin: 10px 0 0;
+            font-size: 30px;
+        }
+
+        .section {
+            display: none;
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.28);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 13px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 95px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #60a5fa;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+        }
+
+        .btn-red {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-yellow {
+            background: #f59e0b;
+            color: #111827;
+        }
+
+        .btn-soft {
+            background: rgba(148, 163, 184, 0.15);
+            color: #e5e7eb;
+        }
+
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .item {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .item-title {
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .muted {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .question-box {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px dashed rgba(148, 163, 184, 0.35);
+            padding: 14px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+
+        .question-box h4 {
+            margin: 0 0 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 1000px) {
+            body {
+                display: block;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .stats,
+            .grid-form {
+                grid-template-columns: 1fr;
+            }
+
+            .item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="logo">Admin Dashboard</div>
+    <div class="role">Test platform boshqaruvi</div>
+
+    <button class="menu-btn active" onclick="showSection('dashboard', this)">Dashboard</button>
+    <button class="menu-btn" onclick="showSection('tests', this)">Tests</button>
+    <button class="menu-btn" onclick="showSection('teachers', this)">Teachers</button>
+    <button class="menu-btn" onclick="showSection('students', this)">Students</button>
+    <button class="menu-btn" onclick="showSection('admins', this)">Admins</button>
+
+    <button class="menu-btn logout" onclick="logout()">Logout</button>
+</aside>
+
+<main class="main">
+
+    <div class="topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="badge">ADMIN MODE</div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <span>Teachers</span>
+            <h2 id="teacherCount">0</h2>
+        </div>
+        <div class="stat-card">
+            <span>Students</span>
+            <h2 id="studentCount">0</h2>
+        </div>
+        <div class="stat-card">
+            <span>Tests</span>
+            <h2 id="testCount">0</h2>
+        </div>
+        <div class="stat-card">
+            <span>Admins</span>
+            <h2 id="adminCount">0</h2>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+        <div class="section-header">
+            <h2>Umumiy boshqaruv</h2>
+        </div>
+        <p class="muted">
+            Bu panel orqali admin teacher, student, admin va testlarni boshqaradi.
+            Admin test yaratishi, tahrirlashi, savol qo‘shishi va keraksiz testlarni o‘chirishi mumkin.
+        </p>
+    </section>
+
+    <!-- TESTS -->
+    <section id="tests" class="section">
+        <div class="section-header">
+            <h2>Testlar boshqaruvi</h2>
+            <button class="btn btn-primary" onclick="openCreateTest()">+ Yangi test</button>
+        </div>
+
+        <div id="testForm" class="hidden">
+            <h3 id="testFormTitle">Yangi test yaratish</h3>
+
+            <div class="grid-form">
+                <input id="testTitle" placeholder="Test nomi">
+                <select id="testLevel">
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                </select>
+                <select id="testTeacherId">
+                    <option value="">Teacher tanlang</option>
+                </select>
+            </div>
+
+            <textarea id="testDescription" placeholder="Test haqida qisqacha ma'lumot"></textarea>
+
+            <h3>Savollar</h3>
+            <div id="questionsContainer"></div>
+
+            <button class="btn btn-soft" onclick="addQuestion()">+ Savol qo‘shish</button>
+            <button class="btn btn-green" onclick="saveTest()">Saqlash</button>
+            <button class="btn btn-red" onclick="closeTestForm()">Bekor qilish</button>
+
+            <hr style="border-color: rgba(148,163,184,0.2); margin: 22px 0;">
+        </div>
+
+        <div id="testsList" class="list"></div>
+    </section>
+
+    <!-- TEACHERS -->
+    <section id="teachers" class="section">
+        <div class="section-header">
+            <h2>Teachers</h2>
+        </div>
+
+        <div class="grid-form">
+            <input id="tFullName" placeholder="Full name">
+            <input id="tPhone" placeholder="Phone number">
+            <input id="tUser" placeholder="Username">
+            <input id="tPass" type="password" placeholder="Password">
+        </div>
+
+        <button class="btn btn-green" onclick="createTeacher()">Create Teacher</button>
+
+        <br><br>
+        <div id="teachersList" class="list"></div>
+    </section>
+
+    <!-- STUDENTS -->
+    <section id="students" class="section">
+        <div class="section-header">
+            <h2>Students</h2>
+        </div>
+
+        <div id="studentsList" class="list"></div>
+    </section>
+
+    <!-- ADMINS -->
+    <section id="admins" class="section">
+        <div class="section-header">
+            <h2>Admins</h2>
+        </div>
+
+        <div class="grid-form">
+            <input id="aFullName" placeholder="Full name">
+            <input id="aUser" placeholder="Username">
+            <input id="aPass" type="password" placeholder="Password">
+        </div>
+
+        <button class="btn btn-green" onclick="createAdmin()">Create Admin</button>
+
+        <br><br>
+        <div id="adminsList" class="list"></div>
+    </section>
+
+</main>
+
+<script>
+    const BASE = "/api/v1";
+    const token = localStorage.getItem("token");
+
+    let teachersCache = [];
+    let editingTestId = null;
+
+    if (!token) {
+        location.href = "/api/v1/Sign In.html";
+    }
+
+    function headers() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        };
+    }
+
+    function showSection(id, btn) {
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+
+        document.getElementById(id).classList.add("active");
+        btn.classList.add("active");
+
+        document.getElementById("pageTitle").innerText =
+            id.charAt(0).toUpperCase() + id.slice(1);
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        location.href = "/api/v1/Sign In.html";
+    }
+
+    async function safeJson(res) {
+        const text = await res.text();
+        return text ? JSON.parse(text) : null;
+    }
+
+    function getArray(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.content)) return data.content;
+        return [];
+    }
+
+    // ================= TEACHERS =================
+
+    async function loadTeachers() {
+        const res = await fetch(BASE + "/teacher", { headers: headers() });
+        const data = getArray(await safeJson(res));
+
+        teachersCache = data;
+        document.getElementById("teacherCount").innerText = data.length;
+
+        const select = document.getElementById("testTeacherId");
+        select.innerHTML = `<option value="">Teacher tanlang</option>`;
+
+        data.forEach(t => {
+            select.innerHTML += `
+                <option value="${t.id}">
+                    ${t.fullName || t.firstName || t.username || "Teacher"}
+                </option>
+            `;
+        });
+
+        const list = document.getElementById("teachersList");
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = `<p class="muted">Teacher topilmadi.</p>`;
+            return;
+        }
+
+        data.forEach(t => {
+            list.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-title">${t.fullName || t.firstName || "-"}</div>
+                        <div class="muted">Username: ${t.username || "-"}</div>
+                        <div class="muted">Phone: ${t.phoneNumber || "-"}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-red" onclick="deleteTeacher('${t.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function createTeacher() {
+        const data = {
+            fullName: document.getElementById("tFullName").value.trim(),
+            phoneNumber: document.getElementById("tPhone").value.trim(),
+            username: document.getElementById("tUser").value.trim(),
+            password: document.getElementById("tPass").value
+        };
+
+        await fetch(BASE + "/teacher", {
+            method: "POST",
+            headers: headers(),
+            body: JSON.stringify(data)
+        });
+
+        document.getElementById("tFullName").value = "";
+        document.getElementById("tPhone").value = "";
+        document.getElementById("tUser").value = "";
+        document.getElementById("tPass").value = "";
+
+        loadTeachers();
+    }
+
+    async function deleteTeacher(id) {
+        if (!confirm("Teacher o‘chirilsinmi?")) return;
+
+        await fetch(BASE + "/teacher/" + id, {
+            method: "DELETE",
+            headers: headers()
+        });
+
+        loadTeachers();
+    }
+
+    // ================= STUDENTS =================
+
+    async function loadStudents() {
+        const res = await fetch(BASE + "/students", { headers: headers() });
+        const data = getArray(await safeJson(res));
+
+        document.getElementById("studentCount").innerText = data.length;
+
+        const list = document.getElementById("studentsList");
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = `<p class="muted">Student topilmadi.</p>`;
+            return;
+        }
+
+        data.forEach(s => {
+            list.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-title">${s.fullName || s.firstName || "-"}</div>
+                        <div class="muted">Username: ${s.username || "-"}</div>
+                        <div class="muted">Phone: ${s.phoneNumber || "-"}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-red" onclick="deleteStudent('${s.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function deleteStudent(id) {
+        if (!confirm("Student o‘chirilsinmi?")) return;
+
+        await fetch(BASE + "/students/" + id, {
+            method: "DELETE",
+            headers: headers()
+        });
+
+        loadStudents();
+    }
+
+    // ================= ADMINS =================
+
+    async function loadAdmins() {
+        const res = await fetch(BASE + "/admin", { headers: headers() });
+        const data = getArray(await safeJson(res));
+
+        document.getElementById("adminCount").innerText = data.length;
+
+        const list = document.getElementById("adminsList");
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = `<p class="muted">Admin topilmadi.</p>`;
+            return;
+        }
+
+        data.forEach(a => {
+            list.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-title">${a.fullName || "-"}</div>
+                        <div class="muted">Username: ${a.username || "-"}</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-red" onclick="deleteAdmin('${a.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function createAdmin() {
+        const data = {
+            fullName: document.getElementById("aFullName").value.trim(),
+            username: document.getElementById("aUser").value.trim(),
+            password: document.getElementById("aPass").value
+        };
+
+        await fetch(BASE + "/admin", {
+            method: "POST",
+            headers: headers(),
+            body: JSON.stringify(data)
+        });
+
+        document.getElementById("aFullName").value = "";
+        document.getElementById("aUser").value = "";
+        document.getElementById("aPass").value = "";
+
+        loadAdmins();
+    }
+
+    async function deleteAdmin(id) {
+        if (!confirm("Admin o‘chirilsinmi?")) return;
+
+        await fetch(BASE + "/admin/" + id, {
+            method: "DELETE",
+            headers: headers()
+        });
+
+        loadAdmins();
+    }
+
+    // ================= TESTS =================
+
+    function openCreateTest() {
+        editingTestId = null;
+        document.getElementById("testFormTitle").innerText = "Yangi test yaratish";
+        document.getElementById("testForm").classList.remove("hidden");
+
+        document.getElementById("testTitle").value = "";
+        document.getElementById("testDescription").value = "";
+        document.getElementById("testLevel").value = "EASY";
+        document.getElementById("testTeacherId").value = "";
+        document.getElementById("questionsContainer").innerHTML = "";
+
+        addQuestion();
+    }
+
+    function closeTestForm() {
+        document.getElementById("testForm").classList.add("hidden");
+        editingTestId = null;
+    }
+
+    function addQuestion(q = {}) {
+        const box = document.createElement("div");
+        box.className = "question-box";
+
+        box.innerHTML = `
+            <h4>Savol</h4>
+
+            <textarea class="qText" placeholder="Savol matni">${q.questionText || ""}</textarea>
+
+            <div class="grid-form">
+                <select class="qType">
+                    <option value="MULTIPLE_CHOICE" ${q.questionType === "MULTIPLE_CHOICE" ? "selected" : ""}>Multiple choice</option>
+                    <option value="TRUE_FALSE" ${q.questionType === "TRUE_FALSE" ? "selected" : ""}>True / False</option>
+                    <option value="MATCHING" ${q.questionType === "MATCHING" ? "selected" : ""}>Matching</option>
+                </select>
+
+                <input class="qPoints" type="number" min="1" placeholder="Ball" value="${q.points || 1}">
+
+                <button type="button" class="btn btn-red" onclick="this.closest('.question-box').remove()">Savolni o‘chirish</button>
+            </div>
+
+            <input class="qAllAnswers" placeholder="Variantlar: A,B,C,D" value="${Array.isArray(q.allAnswers) ? q.allAnswers.join(",") : ""}">
+            <input class="qTrueAnswers" placeholder="To‘g‘ri javob: A yoki A,C" value="${Array.isArray(q.trueAnswers) ? q.trueAnswers.join(",") : ""}">
+            <input class="qTrueFalse" placeholder="True/False javob: TRUE yoki FALSE" value="${q.trueFalseAnswer || ""}">
+            <input class="qLeftItems" placeholder="Matching chap: 1,2,3" value="${Array.isArray(q.leftItems) ? q.leftItems.join(",") : ""}">
+            <input class="qRightItems" placeholder="Matching o‘ng: A,B,C" value="${Array.isArray(q.rightItems) ? q.rightItems.join(",") : ""}">
+            <input class="qCorrectPairs" placeholder="Juftliklar: 1-A,2-B,3-C" value="${Array.isArray(q.correctPairs) ? q.correctPairs.join(",") : ""}">
+        `;
+
+        document.getElementById("questionsContainer").appendChild(box);
+    }
+
+    function collectQuestions() {
+        const boxes = document.querySelectorAll(".question-box");
+
+        return Array.from(boxes).map(box => {
+            return {
+                questionText: box.querySelector(".qText").value.trim(),
+                questionType: box.querySelector(".qType").value,
+                points: Number(box.querySelector(".qPoints").value || 1),
+
+                allAnswers: splitValue(box.querySelector(".qAllAnswers").value),
+                trueAnswers: splitValue(box.querySelector(".qTrueAnswers").value),
+
+                trueFalseAnswer: box.querySelector(".qTrueFalse").value.trim(),
+
+                leftItems: splitValue(box.querySelector(".qLeftItems").value),
+                rightItems: splitValue(box.querySelector(".qRightItems").value),
+                correctPairs: splitValue(box.querySelector(".qCorrectPairs").value)
+            };
+        });
+    }
+
+    function splitValue(value) {
+        if (!value || !value.trim()) return [];
+        return value.split(",").map(v => v.trim()).filter(v => v.length > 0);
+    }
+
+    async function saveTest() {
+        const data = {
+            title: document.getElementById("testTitle").value.trim(),
+            description: document.getElementById("testDescription").value.trim(),
+            questionLevel: document.getElementById("testLevel").value,
+            teacherId: document.getElementById("testTeacherId").value,
+            questions: collectQuestions()
+        };
+
+        if (!data.title) {
+            alert("Test nomini kiriting.");
+            return;
+        }
+
+        if (data.questions.length === 0) {
+            alert("Kamida bitta savol qo‘shing.");
+            return;
+        }
+
+        const url = editingTestId
+            ? BASE + "/test/" + editingTestId
+            : BASE + "/test";
+
+        const method = editingTestId ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+            method: method,
+            headers: headers(),
+            body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+            alert("Xatolik: backend DTO yoki endpoint mos kelmayapti.");
+            return;
+        }
+
+        closeTestForm();
+        loadTests();
+    }
+
+    async function loadTests() {
+        const res = await fetch(BASE + "/test", { headers: headers() });
+        const data = await safeJson(res);
+        const tests = getArray(data);
+
+        document.getElementById("testCount").innerText = tests.length;
+
+        const list = document.getElementById("testsList");
+        list.innerHTML = "";
+
+        if (tests.length === 0) {
+            list.innerHTML = `<p class="muted">Test topilmadi.</p>`;
+            return;
+        }
+
+        tests.forEach(t => {
+            list.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-title">${t.title || t.questionText || "Nomsiz test"}</div>
+                        <div class="muted">Teacher: ${t.teacherFullName || t.professorFullName || "-"}</div>
+                        <div class="muted">Savollar: ${Array.isArray(t.questions) ? t.questions.length : 0}</div>
+                        <div class="muted">Level: ${t.questionLevel || t.level || "-"}</div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-yellow" onclick='editTest(${JSON.stringify(t).replaceAll("'", "&#39;")})'>Edit</button>
+                        <button class="btn btn-red" onclick="deleteTest('${t.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function editTest(t) {
+        editingTestId = t.id;
+
+        document.getElementById("testFormTitle").innerText = "Testni tahrirlash";
+        document.getElementById("testForm").classList.remove("hidden");
+
+        document.getElementById("testTitle").value = t.title || "";
+        document.getElementById("testDescription").value = t.description || "";
+        document.getElementById("testLevel").value = t.questionLevel || t.level || "EASY";
+        document.getElementById("testTeacherId").value = t.teacherId || t.professorId || "";
+
+        document.getElementById("questionsContainer").innerHTML = "";
+
+        if (Array.isArray(t.questions) && t.questions.length > 0) {
+            t.questions.forEach(q => addQuestion(q));
+        } else {
+            addQuestion(t);
+        }
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function deleteTest(id) {
+        if (!confirm("Test o‘chirilsinmi?")) return;
+
+        await fetch(BASE + "/test/" + id, {
+            method: "DELETE",
+            headers: headers()
+        });
+
+        loadTests();
+    }
+
+    async function init() {
+        await loadTeachers();
+        await loadStudents();
+        await loadAdmins();
+        await loadTests();
+    }
+
+    init();
+</script>
+
+</body>
+</html>

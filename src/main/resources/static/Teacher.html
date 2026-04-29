@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>O'qituvchi paneli</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #06070d;
+            --surface: #0d1117;
+            --surface2: #161b27;
+            --surface3: #1e2535;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(255,255,255,0.15);
+            --accent: #5b7fff;
+            --accent2: #a78bfa;
+            --accent3: #34d399;
+            --text: #f0f2ff;
+            --muted: #6b7a99;
+            --danger: #f87171;
+            --warn: #fbbf24;
+            --glow: rgba(91,127,255,0.25);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(91,127,255,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -20%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 32px 20px;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+
+        .logo-sub {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 400;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+
+        .menu-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            border: none;
+            padding: 11px 14px;
+            margin-bottom: 4px;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .menu-btn .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        .menu-btn:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .menu-btn.active {
+            background: linear-gradient(135deg, rgba(91,127,255,0.15), rgba(167,139,250,0.1));
+            color: var(--accent);
+            border: 1px solid rgba(91,127,255,0.2);
+        }
+
+        .menu-btn.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .menu-btn.logout {
+            margin-top: auto;
+            color: var(--danger);
+            opacity: 0.7;
+        }
+        .menu-btn.logout:hover { opacity: 1; background: rgba(248,113,113,0.08); }
+
+        /* ─── MAIN ─── */
+        .main {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 36px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── TOPBAR ─── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 36px;
+        }
+
+        .page-title-group h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title-group p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .teacher-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 40px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent3);
+            box-shadow: 0 0 8px var(--accent3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ─── STATS ─── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .stat:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+        }
+
+        .stat:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+        .stat:nth-child(2)::before { background: linear-gradient(90deg, var(--accent2), #ec4899); }
+        .stat:nth-child(3)::before { background: linear-gradient(90deg, var(--accent3), #06b6d4); }
+        .stat:nth-child(4)::before { background: linear-gradient(90deg, var(--warn), #f97316); }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        /* ─── MESSAGE ─── */
+        .message {
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 4px;
+        }
+        .success { color: var(--accent3); }
+        .error { color: var(--danger); }
+
+        /* ─── SECTION ─── */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ─── CARD ─── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 26px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* ─── INPUTS ─── */
+        input, textarea, select {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            background: var(--surface3);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--muted);
+        }
+
+        select option {
+            background: var(--surface2);
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* ─── ANSWER BOXES ─── */
+        .answer-box {
+            margin-top: 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .answer-box h4 {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dynamic-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .dynamic-row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        .dynamic-row input[type="radio"],
+        .dynamic-row input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+
+        .match-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+            box-shadow: 0 4px 16px rgba(91,127,255,0.3);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(91,127,255,0.45); }
+
+        .btn-green {
+            background: linear-gradient(135deg, #059669, var(--accent3));
+            color: white;
+            box-shadow: 0 4px 16px rgba(52,211,153,0.25);
+        }
+
+        .btn-red {
+            background: rgba(248,113,113,0.15);
+            color: var(--danger);
+            border: 1px solid rgba(248,113,113,0.2);
+        }
+        .btn-red:hover { background: rgba(248,113,113,0.25); }
+
+        .btn-yellow {
+            background: rgba(251,191,36,0.12);
+            color: var(--warn);
+            border: 1px solid rgba(251,191,36,0.2);
+        }
+        .btn-yellow:hover { background: rgba(251,191,36,0.22); }
+
+        .btn-soft {
+            background: var(--surface2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+        .btn-soft:hover { color: var(--text); border-color: var(--border-hover); }
+
+        .small-btn { padding: 9px 12px; border-radius: 10px; font-size: 13px; }
+
+        /* ─── LISTS ─── */
+        .list { display: grid; gap: 12px; }
+
+        .item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 22px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .item:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .question-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .question-item:hover { border-color: var(--border-hover); }
+
+        .result-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 22px;
+            transition: border-color 0.2s;
+        }
+
+        .result-item:hover { border-color: var(--border-hover); }
+
+        .item-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 6px;
+        }
+
+        .tag-blue { background: rgba(91,127,255,0.12); color: var(--accent); }
+        .tag-purple { background: rgba(167,139,250,0.12); color: var(--accent2); }
+        .tag-green { background: rgba(52,211,153,0.12); color: var(--accent3); }
+
+        /* HR */
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+        /* Profile */
+        .profile-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .profile-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .profile-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .profile-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Dashboard welcome */
+        .welcome-card {
+            background: linear-gradient(135deg, rgba(91,127,255,0.08), rgba(167,139,250,0.05));
+            border: 1px solid rgba(91,127,255,0.15);
+            border-radius: 20px;
+            padding: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .welcome-text h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 480px;
+        }
+
+        .welcome-art {
+            font-size: 72px;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .quick-action {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .quick-action:hover {
+            border-color: var(--accent);
+            background: rgba(91,127,255,0.05);
+            transform: translateY(-2px);
+        }
+
+        .qa-icon { font-size: 28px; margin-bottom: 12px; }
+        .qa-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .qa-desc { color: var(--muted); font-size: 12px; }
+
+        /* Percent badge */
+        .percent-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(52,211,153,0.12);
+            color: var(--accent3);
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 1100px) {
+            body { display: block; }
+            .sidebar { position: static; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; }
+            .main { margin-left: 0; width: 100%; padding: 20px; }
+            .stats, .grid-form, .profile-box, .quick-actions { grid-template-columns: 1fr 1fr; }
+            .item { flex-direction: column; align-items: flex-start; }
+            .match-row { grid-template-columns: 1fr; }
+            .welcome-art { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .stats, .grid-form, .profile-box, .quick-actions { grid-template-columns: 1fr; }
+        }
+
+        /* Animations */
+        .section.active { animation: fadeUp 0.3s ease; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat { animation: fadeUp 0.4s ease both; }
+        .stat:nth-child(2) { animation-delay: 0.05s; }
+        .stat:nth-child(3) { animation-delay: 0.1s; }
+        .stat:nth-child(4) { animation-delay: 0.15s; }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">📚</div>
+        <div>
+            <div class="logo-text">EduPanel</div>
+            <div class="logo-sub">O'qituvchi platformasi</div>
+        </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="menu-label">Navigatsiya</div>
+
+    <button class="menu-btn active" onclick="showSection('dashboard', this)">
+        <span class="icon">🏠</span> Asosiy panel
+    </button>
+    <button class="menu-btn" onclick="openCreateTest(this)">
+        <span class="icon">✏️</span> Yangi test
+    </button>
+    <button class="menu-btn" onclick="loadTests(); showSection('testsSection', this)">
+        <span class="icon">📋</span> Mening testlarim
+    </button>
+    <button class="menu-btn" onclick="loadResults(); showSection('resultsSection', this)">
+        <span class="icon">📊</span> O'quvchilar natijalari
+    </button>
+    <button class="menu-btn" onclick="showSection('profileSection', this)">
+        <span class="icon">👤</span> Profil
+    </button>
+
+    <div style="flex:1"></div>
+    <div class="sidebar-divider"></div>
+
+    <button class="menu-btn logout" onclick="logout()">
+        <span class="icon">🚪</span> Chiqish
+    </button>
+</aside>
+
+<main class="main">
+
+    <div class="topbar">
+        <div class="page-title-group">
+            <h1 id="pageTitle">Asosiy panel</h1>
+            <p id="pageSubtitle">Xush kelibsiz! Bugun nima qilamiz?</p>
+        </div>
+        <div class="teacher-badge">
+            <div class="badge-dot"></div>
+            <span id="teacherNameTop">O'qituvchi</span>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-label">Testlarim</div>
+            <div class="stat-value" id="testCount">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Savollar</div>
+            <div class="stat-value" id="questionCount">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Natijalar</div>
+            <div class="stat-value" id="resultCount">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">O'rtacha</div>
+            <div class="stat-value" id="avgPercent">0%</div>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+        <div class="welcome-card">
+            <div class="welcome-text">
+                <h2>Xush kelibsiz, <span id="welcomeName">O'qituvchi</span>! 👋</h2>
+                <p>Bu panel orqali yangi test yaratish, savollarni boshqarish va o'quvchilar natijalarini real vaqtda kuzatish mumkin.</p>
+            </div>
+            <div class="welcome-art">🎓</div>
+        </div>
+
+        <div class="quick-actions">
+            <div class="quick-action" onclick="openCreateTest()">
+                <div class="qa-icon">➕</div>
+                <div class="qa-title">Yangi test yaratish</div>
+                <div class="qa-desc">Savollar qo'shib, test tuzing</div>
+            </div>
+            <div class="quick-action" onclick="loadTests(); showSection('testsSection')">
+                <div class="qa-icon">📋</div>
+                <div class="qa-title">Testlarni ko'rish</div>
+                <div class="qa-desc">Barcha testlaringizni boshqaring</div>
+            </div>
+            <div class="quick-action" onclick="loadResults(); showSection('resultsSection')">
+                <div class="qa-icon">📈</div>
+                <div class="qa-title">Natijalar</div>
+                <div class="qa-desc">O'quvchilar baholari va statistika</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profileSection" class="section">
+        <div class="card">
+            <div class="section-header">
+                <h2>Profil ma'lumotlari</h2>
+            </div>
+            <div class="profile-box">
+                <div class="profile-card">
+                    <div class="profile-label">Ism familiya</div>
+                    <div class="profile-value" id="teacherName">-</div>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-label">Login</div>
+                    <div class="profile-value" id="teacherUsername">-</div>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-label">Lavozim</div>
+                    <div class="profile-value" id="teacherRole">O'qituvchi</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CREATE TEST -->
+    <section id="createSection" class="section">
+        <div class="card">
+            <div class="section-header">
+                <h2 id="formTitle">Yangi test yaratish</h2>
+                <button class="btn btn-soft" onclick="clearAll()">🗑 Tozalash</button>
+            </div>
+
+            <input id="testTitle" placeholder="Test nomini kiriting...">
+
+            <hr>
+
+            <h3 style="font-family:'Syne',sans-serif; font-size:16px; margin-bottom:16px;">📝 Savol qo'shish</h3>
+
+            <textarea id="questionText" placeholder="Savol matnini bu yerga kiriting..."></textarea>
+
+            <div class="grid-form">
+                <select id="questionType" onchange="changeQuestionType()">
+                    <option value="SINGLE_CHOICE">Yagona tanlov</option>
+                    <option value="MULTIPLE_CHOICE">Ko'p tanlovli</option>
+                    <option value="MATCHING">Moslashtirish</option>
+                    <option value="TRUE_FALSE">Ha / Yo'q</option>
+                </select>
+                <select id="questionLevel">
+                    <option value="EASY">🟢 Oson</option>
+                    <option value="MEDIUM">🟡 O'rtacha</option>
+                    <option value="HARD">🔴 Qiyin</option>
+                </select>
+                <input id="points" type="number" min="1" placeholder="Ball miqdori">
+            </div>
+
+            <div id="singleChoiceBox" class="answer-box">
+                <h4>🔵 Yagona tanlov variantlari</h4>
+                <div id="singleOptions"></div>
+                <button class="btn btn-soft" type="button" onclick="addSingleOption()">+ Variant qo'shish</button>
+            </div>
+
+            <div id="multiChoiceBox" class="answer-box hidden">
+                <h4>🟣 Ko'p tanlovli variantlar</h4>
+                <div id="multiOptions"></div>
+                <button class="btn btn-soft" type="button" onclick="addMultiOption()">+ Variant qo'shish</button>
+            </div>
+
+            <div id="matchingBox" class="answer-box hidden">
+                <h4>🔗 Moslashtirish juftliklari</h4>
+                <div id="matchingOptions"></div>
+                <button class="btn btn-soft" type="button" onclick="addMatchingPair()">+ Juftlik qo'shish</button>
+                <p class="muted" style="margin-top:10px; font-size:12px;">Juftliklar avtomatik to'g'ri javob sifatida saqlanadi.</p>
+            </div>
+
+            <div id="trueFalseBox" class="answer-box hidden">
+                <h4>✅ Ha / Yo'q javobi</h4>
+                <select id="trueFalseAnswer">
+                    <option value="HA">✅ Ha</option>
+                    <option value="YOQ">❌ Yo'q</option>
+                </select>
+            </div>
+
+            <div style="margin-top:20px;">
+                <button class="btn btn-primary" onclick="addQuestion()">➕ Savol qo'shish</button>
+                <button class="btn btn-soft" onclick="clearQuestionForm()">🔄 Formani tozalash</button>
+            </div>
+
+            <hr>
+
+            <h3 style="font-family:'Syne',sans-serif; font-size:16px; margin-bottom:16px;">📂 Ushbu testdagi savollar</h3>
+            <div id="questionList" class="list"></div>
+
+            <div style="margin-top:24px;">
+                <button class="btn btn-green" onclick="saveTest()">💾 Testni saqlash</button>
+                <button class="btn btn-red" onclick="clearAll()">✕ Bekor qilish</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTS LIST -->
+    <section id="testsSection" class="section">
+        <div class="card">
+            <div class="section-header">
+                <h2>Mening testlarim</h2>
+                <button class="btn btn-primary" onclick="openCreateTest()">+ Yangi test</button>
+            </div>
+            <div id="testsList" class="list"></div>
+        </div>
+    </section>
+
+    <!-- VIEW TEST -->
+    <section id="viewSection" class="section">
+        <div class="card">
+            <div class="section-header">
+                <h2>Testni ko'rish</h2>
+                <button class="btn btn-soft" onclick="showSection('testsSection')">← Ortga</button>
+            </div>
+            <div id="viewBox"></div>
+        </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="resultsSection" class="section">
+        <div class="card">
+            <div class="section-header">
+                <h2>O'quvchilar natijalari</h2>
+            </div>
+            <div id="resultsList" class="list"></div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    const BASE = window.location.origin + "/api/v1";
+    const LOGIN_PAGE = "/api/v1/sign-in.html";
+
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    let questions = [];
+    let editingTestId = null;
+    let testsCache = [];
+    let resultsCache = [];
+    let optionLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    if (!token) {
+        // window.location.href = LOGIN_PAGE;
+    }
+
+    function headers() {
+        return { "Content-Type": "application/json", "Authorization": "Bearer " + token };
+    }
+
+    async function safeJson(res) {
+        const text = await res.text();
+        try { return text ? JSON.parse(text) : null; } catch (e) { return null; }
+    }
+
+    function getArray(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.content)) return data.content;
+        return [];
+    }
+
+    function showMessage(text, type = "success") {
+        const msg = document.getElementById("message");
+        msg.innerHTML = (type === "success" ? "✓ " : "⚠ ") + text;
+        msg.className = "message " + type;
+        setTimeout(() => { msg.innerHTML = ""; msg.className = "message"; }, 3500);
+    }
+
+    const pageMeta = {
+        dashboard: { title: "Asosiy panel", sub: "Xush kelibsiz! Bugun nima qilamiz?" },
+        profileSection: { title: "Profil", sub: "Shaxsiy ma'lumotlaringiz" },
+        createSection: { title: "Test yaratish", sub: "Yangi savol va test qo'shing" },
+        testsSection: { title: "Mening testlarim", sub: "Barcha yaratilgan testlar" },
+        viewSection: { title: "Testni ko'rish", sub: "Batafsil ma'lumot" },
+        resultsSection: { title: "Natijalar", sub: "O'quvchilar baholari va statistika" }
+    };
+
+    function showSection(id, btn) {
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+
+        const meta = pageMeta[id] || { title: "Panel", sub: "" };
+        document.getElementById("pageTitle").innerText = meta.title;
+        document.getElementById("pageSubtitle").innerText = meta.sub;
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = LOGIN_PAGE;
+    }
+
+    function fillProfile() {
+        const fullName = user.fullName || user.username || user.name || "Foydalanuvchi";
+        document.getElementById("teacherNameTop").innerText = fullName;
+        document.getElementById("teacherName").innerText = fullName;
+        document.getElementById("teacherUsername").innerText = user.username || "-";
+        document.getElementById("teacherRole").innerText = user.role || "TEACHER";
+        document.getElementById("welcomeName").innerText = fullName;
+    }
+
+    function openCreateTest(btn) {
+        clearAll();
+        showSection("createSection", btn);
+    }
+
+    function changeQuestionType() {
+        ["singleChoiceBox", "multiChoiceBox", "matchingBox", "trueFalseBox"].forEach(id => {
+            document.getElementById(id).classList.add("hidden");
+        });
+        const type = document.getElementById("questionType").value;
+        if (type === "SINGLE_CHOICE") document.getElementById("singleChoiceBox").classList.remove("hidden");
+        if (type === "MULTIPLE_CHOICE") document.getElementById("multiChoiceBox").classList.remove("hidden");
+        if (type === "MATCHING") document.getElementById("matchingBox").classList.remove("hidden");
+        if (type === "TRUE_FALSE") document.getElementById("trueFalseBox").classList.remove("hidden");
+    }
+
+    function getLetter(index) { return optionLetters[index] || String(index + 1); }
+
+    function addSingleOption(value = "", correct = false, key = null) {
+        const box = document.getElementById("singleOptions");
+        const index = box.children.length;
+        const letter = key || getLetter(index);
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+            <div>
+                <input class="single-option" data-key="${letter}" value="${escapeAttr(value)}" placeholder="Variant ${letter}">
+                <label><input type="radio" name="singleCorrectDynamic" class="single-correct" value="${letter}" ${correct ? "checked" : ""}> To'g'ri javob</label>
+            </div>
+            <button class="btn btn-red small-btn" type="button" onclick="removeDynamicRow(this)">✕</button>
+        `;
+        box.appendChild(row);
+    }
+
+    function addMultiOption(value = "", correct = false, key = null) {
+        const box = document.getElementById("multiOptions");
+        const index = box.children.length;
+        const letter = key || getLetter(index);
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+            <div>
+                <input class="multi-option" data-key="${letter}" value="${escapeAttr(value)}" placeholder="Variant ${letter}">
+                <label><input type="checkbox" class="multi-correct" value="${letter}" ${correct ? "checked" : ""}> To'g'ri javob</label>
+            </div>
+            <button class="btn btn-red small-btn" type="button" onclick="removeDynamicRow(this)">✕</button>
+        `;
+        box.appendChild(row);
+    }
+
+    function addMatchingPair(left = "", right = "") {
+        const box = document.getElementById("matchingOptions");
+        const index = box.children.length + 1;
+        const row = document.createElement("div");
+        row.className = "match-row";
+        row.innerHTML = `
+            <input class="match-left" value="${escapeAttr(left)}" placeholder="Chap ${index}">
+            <input class="match-right" value="${escapeAttr(right)}" placeholder="O'ng ${index}">
+            <button class="btn btn-red small-btn" type="button" onclick="removeDynamicRow(this)">✕</button>
+        `;
+        box.appendChild(row);
+    }
+
+    function removeDynamicRow(btn) { btn.parentElement.remove(); }
+
+    function addQuestion() {
+        const questionText = document.getElementById("questionText").value.trim();
+        const questionType = document.getElementById("questionType").value;
+        const questionLevel = document.getElementById("questionLevel").value;
+        const points = Number(document.getElementById("points").value);
+
+        if (!questionText) { showMessage("Savol matnini kiriting.", "error"); return; }
+        if (!points || points < 1) { showMessage("Ball kamida 1 bo'lishi kerak.", "error"); return; }
+
+        const q = { questionText, questionType, questionLevel, points };
+
+        if (questionType === "SINGLE_CHOICE") {
+            const optionInputs = Array.from(document.querySelectorAll(".single-option"));
+            const correct = document.querySelector(".single-correct:checked");
+            q.allAnswers = optionInputs.map(x => x.value.trim()).filter(x => x);
+            q.trueAnswers = correct ? [correct.value] : [];
+            if (q.allAnswers.length < 2) { showMessage("Kamida 2 ta variant kiriting.", "error"); return; }
+            if (q.trueAnswers.length === 0) { showMessage("Bitta to'g'ri javob tanlang.", "error"); return; }
+        }
+
+        if (questionType === "MULTIPLE_CHOICE") {
+            const optionInputs = Array.from(document.querySelectorAll(".multi-option"));
+            q.allAnswers = optionInputs.map(x => x.value.trim()).filter(x => x);
+            q.trueAnswers = Array.from(document.querySelectorAll(".multi-correct:checked")).map(x => x.value);
+            if (q.allAnswers.length < 2) { showMessage("Kamida 2 ta variant kiriting.", "error"); return; }
+            if (q.trueAnswers.length === 0) { showMessage("Kamida bitta to'g'ri javob tanlang.", "error"); return; }
+        }
+
+        if (questionType === "MATCHING") {
+            const lefts = Array.from(document.querySelectorAll(".match-left")).map(x => x.value.trim()).filter(x => x);
+            const rights = Array.from(document.querySelectorAll(".match-right")).map(x => x.value.trim()).filter(x => x);
+            q.leftItems = lefts;
+            q.rightItems = rights;
+            q.correctPairs = lefts.map((_, i) => `${i + 1}-${String.fromCharCode(97 + i)}`);
+            if (q.leftItems.length < 2 || q.rightItems.length < 2) { showMessage("Kamida 2 ta juftlik kiriting.", "error"); return; }
+            if (q.leftItems.length !== q.rightItems.length) { showMessage("Chap va o'ng soni teng bo'lishi kerak.", "error"); return; }
+        }
+
+        if (questionType === "TRUE_FALSE") {
+            q.trueFalseAnswer = document.getElementById("trueFalseAnswer").value;
+        }
+
+        questions.push(q);
+        renderQuestionList();
+        clearQuestionForm();
+        showMessage("Savol qo'shildi.", "success");
+    }
+
+    function levelTag(level) {
+        if (level === "EASY") return `<span class="tag tag-green">Oson</span>`;
+        if (level === "MEDIUM") return `<span class="tag tag-blue">O'rtacha</span>`;
+        if (level === "HARD") return `<span class="tag" style="background:rgba(248,113,113,0.12);color:#f87171;">Qiyin</span>`;
+        return "";
+    }
+
+    function typeTag(type) {
+        return `<span class="tag tag-purple">${translateType(type)}</span>`;
+    }
+
+    function renderQuestionList() {
+        const list = document.getElementById("questionList");
+        list.innerHTML = "";
+        if (questions.length === 0) {
+            list.innerHTML = `<p class="muted" style="text-align:center; padding:24px;">Hali savol qo'shilmadi.</p>`;
+            return;
+        }
+        questions.forEach((q, index) => {
+            list.innerHTML += `
+                <div class="question-item">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;">
+                        <div class="item-title">${index + 1}. ${escapeHtml(q.questionText)}</div>
+                        <div style="white-space:nowrap;">
+                            <button class="btn btn-yellow small-btn" onclick="editQuestion(${index})">✏️</button>
+                            <button class="btn btn-red small-btn" onclick="removeQuestion(${index})">✕</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        ${typeTag(q.questionType)} ${levelTag(q.questionLevel)}
+                        <span class="tag tag-blue">${q.points} ball</span>
+                    </div>
+                    ${renderPreview(q)}
+                </div>
+            `;
+        });
+    }
+
+    function renderPreview(q) {
+        if (q.questionType === "SINGLE_CHOICE" || q.questionType === "MULTIPLE_CHOICE") {
+            return `
+                <div class="muted">Variantlar: ${Array.isArray(q.allAnswers) ? q.allAnswers.map(escapeHtml).join(", ") : "-"}</div>
+                <div class="muted">To'g'ri javob: ${Array.isArray(q.trueAnswers) ? q.trueAnswers.join(", ") : "-"}</div>
+            `;
+        }
+        if (q.questionType === "MATCHING") {
+            return `
+                <div class="muted">Chap: ${Array.isArray(q.leftItems) ? q.leftItems.map(escapeHtml).join(", ") : "-"}</div>
+                <div class="muted">O'ng: ${Array.isArray(q.rightItems) ? q.rightItems.map(escapeHtml).join(", ") : "-"}</div>
+            `;
+        }
+        if (q.questionType === "TRUE_FALSE") {
+            return `<div class="muted">Javob: ${q.trueFalseAnswer === "HA" ? "✅ Ha" : "❌ Yo'q"}</div>`;
+        }
+        return "";
+    }
+
+    function editQuestion(index) {
+        const q = questions[index];
+        document.getElementById("questionText").value = q.questionText || "";
+        document.getElementById("questionType").value = q.questionType || "SINGLE_CHOICE";
+        document.getElementById("questionLevel").value = q.questionLevel || "EASY";
+        document.getElementById("points").value = q.points || "";
+        resetDynamicBoxes(false);
+        changeQuestionType();
+
+        if (q.questionType === "SINGLE_CHOICE") {
+            (q.allAnswers || []).forEach((value, i) => {
+                const key = getLetter(i);
+                addSingleOption(value, Array.isArray(q.trueAnswers) && q.trueAnswers.includes(key), key);
+            });
+            if (!(q.allAnswers || []).length) { addSingleOption(); addSingleOption(); }
+        }
+        if (q.questionType === "MULTIPLE_CHOICE") {
+            (q.allAnswers || []).forEach((value, i) => {
+                const key = getLetter(i);
+                addMultiOption(value, Array.isArray(q.trueAnswers) && q.trueAnswers.includes(key), key);
+            });
+            if (!(q.allAnswers || []).length) { addMultiOption(); addMultiOption(); }
+        }
+        if (q.questionType === "MATCHING") {
+            const lefts = q.leftItems || [], rights = q.rightItems || [];
+            const max = Math.max(lefts.length, rights.length);
+            for (let i = 0; i < max; i++) addMatchingPair(lefts[i] || "", rights[i] || "");
+            if (!max) { addMatchingPair(); addMatchingPair(); }
+        }
+        if (q.questionType === "TRUE_FALSE") {
+            document.getElementById("trueFalseAnswer").value = q.trueFalseAnswer || "HA";
+        }
+        questions.splice(index, 1);
+        renderQuestionList();
+    }
+
+    function removeQuestion(index) {
+        if (!confirm("Savol o'chirilsinmi?")) return;
+        questions.splice(index, 1);
+        renderQuestionList();
+    }
+
+    function resetDynamicBoxes(withDefaults = true) {
+        document.getElementById("singleOptions").innerHTML = "";
+        document.getElementById("multiOptions").innerHTML = "";
+        document.getElementById("matchingOptions").innerHTML = "";
+        if (withDefaults) {
+            addSingleOption(); addSingleOption();
+            addMultiOption(); addMultiOption();
+            addMatchingPair(); addMatchingPair();
+        }
+        document.getElementById("trueFalseAnswer").value = "HA";
+    }
+
+    function clearQuestionForm() {
+        document.getElementById("questionText").value = "";
+        document.getElementById("questionType").value = "SINGLE_CHOICE";
+        document.getElementById("questionLevel").value = "EASY";
+        document.getElementById("points").value = "";
+        resetDynamicBoxes(true);
+        changeQuestionType();
+    }
+
+    function clearAll() {
+        editingTestId = null;
+        questions = [];
+        document.getElementById("formTitle").innerText = "Yangi test yaratish";
+        document.getElementById("testTitle").value = "";
+        clearQuestionForm();
+        renderQuestionList();
+    }
+
+    async function saveTest() {
+        const title = document.getElementById("testTitle").value.trim();
+        if (!title) { showMessage("Test nomini kiriting.", "error"); return; }
+        if (!user.id) { showMessage("O'qituvchi ma'lumoti topilmadi.", "error"); return; }
+        if (questions.length === 0) { showMessage("Kamida bitta savol qo'shing.", "error"); return; }
+
+        const data = { title, teacherId: user.id, professorId: user.id, questions };
+        let url = BASE + "/test";
+        let method = "POST";
+        if (editingTestId) { url = BASE + "/test/" + editingTestId; method = "PUT"; }
+
+        try {
+            const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(data) });
+            if (!res.ok) throw new Error(await res.text());
+            showMessage(editingTestId ? "Test yangilandi." : "Test yaratildi.", "success");
+            clearAll();
+            await loadTests();
+            showSection("testsSection");
+        } catch (e) {
+            showMessage("Test saqlanmadi.", "error");
+        }
+    }
+
+    async function loadTests() {
+        if (!user.id) {
+            document.getElementById("testsList").innerHTML = `<p class="muted">Teacher ID topilmadi.</p>`;
+            return;
+        }
+        try {
+            const res = await fetch(BASE + "/test?teacherId=" + user.id, { headers: headers() });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await safeJson(res);
+            testsCache = getArray(data);
+            renderTests();
+            updateStats();
+        } catch (e) {
+            document.getElementById("testsList").innerHTML = `<p class="muted">Testlarni yuklab bo'lmadi.</p>`;
+        }
+    }
+
+    function renderTests() {
+        const list = document.getElementById("testsList");
+        list.innerHTML = "";
+        if (testsCache.length === 0) {
+            list.innerHTML = `<p class="muted" style="text-align:center; padding:32px;">Hali test yaratilmagan.</p>`;
+            return;
+        }
+        testsCache.forEach(t => {
+            const qLen = Array.isArray(t.questions) ? t.questions.length : 0;
+            list.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-title">${escapeHtml(t.title || "Nomsiz test")}</div>
+                        <div class="muted" style="margin-top:4px;">
+                            <span class="tag tag-blue">${qLen} savol</span>
+                            <span style="margin-left:8px;">O'qituvchi: ${escapeHtml(t.teacherFullName || t.professorFullName || user.fullName || "-")}</span>
+                        </div>
+                    </div>
+                    <div style="white-space:nowrap;">
+                        <button class="btn btn-soft small-btn" onclick="viewTest('${t.id}')">👁 Ko'rish</button>
+                        <button class="btn btn-yellow small-btn" onclick="editTest('${t.id}')">✏️ Tahrirlash</button>
+                        <button class="btn btn-red small-btn" onclick="deleteTest('${t.id}')">✕ O'chirish</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function viewTest(id) {
+        try {
+            const res = await fetch(BASE + "/test/" + id, { headers: headers() });
+            if (!res.ok) throw new Error(await res.text());
+            const t = await safeJson(res);
+            const qs = Array.isArray(t.questions) ? t.questions : [];
+
+            let html = `
+                <div style="margin-bottom:20px;">
+                    <div class="item-title" style="font-size:22px;">${escapeHtml(t.title || "Nomsiz test")}</div>
+                    <div class="muted" style="margin-top:6px;">
+                        <span class="tag tag-blue">${qs.length} savol</span>
+                        <span style="margin-left:8px;">O'qituvchi: ${escapeHtml(t.teacherFullName || t.professorFullName || user.fullName || "-")}</span>
+                    </div>
+                </div>
+            `;
+
+            if (qs.length === 0) {
+                html += `<p class="muted">Bu testda savollar topilmadi.</p>`;
+            }
+
+            qs.forEach((q, index) => {
+                html += `
+                    <div class="question-item" style="margin-bottom:12px;">
+                        <div class="item-title" style="margin-bottom:8px;">${index + 1}. ${escapeHtml(q.questionText || "")}</div>
+                        <div style="margin-bottom:8px;">${typeTag(q.questionType)} ${levelTag(q.questionLevel)} <span class="tag tag-blue">${q.points || 0} ball</span></div>
+                        ${renderPreview(q)}
+                    </div>
+                `;
+            });
+
+            document.getElementById("viewBox").innerHTML = html;
+            showSection("viewSection");
+        } catch (e) {
+            document.getElementById("viewBox").innerHTML = `<p class="muted">Testni ochib bo'lmadi.</p>`;
+        }
+    }
+
+    async function editTest(id) {
+        try {
+            const res = await fetch(BASE + "/test/" + id, { headers: headers() });
+            if (!res.ok) throw new Error(await res.text());
+            const t = await safeJson(res);
+            editingTestId = id;
+            document.getElementById("formTitle").innerText = "Testni tahrirlash";
+            document.getElementById("testTitle").value = t.title || "";
+            questions = Array.isArray(t.questions)
+                ? t.questions.map(q => ({
+                    questionText: q.questionText, questionType: q.questionType,
+                    allAnswers: q.allAnswers || [], trueAnswers: q.trueAnswers || [],
+                    leftItems: q.leftItems || [], rightItems: q.rightItems || [],
+                    correctPairs: q.correctPairs || [], trueFalseAnswer: q.trueFalseAnswer,
+                    questionLevel: q.questionLevel, points: q.points
+                })) : [];
+            renderQuestionList();
+            clearQuestionForm();
+            showSection("createSection");
+        } catch (e) {
+            showMessage("Tahrirlash uchun test yuklanmadi.", "error");
+        }
+    }
+
+    async function deleteTest(id) {
+        if (!confirm("Test o'chirilsinmi?")) return;
+        try {
+            const res = await fetch(BASE + "/test/" + id, { method: "DELETE", headers: headers() });
+            if (!res.ok) throw new Error(await res.text());
+            showMessage("Test o'chirildi.", "success");
+            await loadTests();
+        } catch (e) {
+            showMessage("Test o'chirilmadi.", "error");
+        }
+    }
+
+    async function loadResults() {
+        const list = document.getElementById("resultsList");
+        if (!user || !user.id) {
+            list.innerHTML = `<p class="muted">Teacher ID topilmadi.</p>`;
+            return;
+        }
+        try {
+            list.innerHTML = `<p class="muted">Natijalar yuklanmoqda...</p>`;
+            const res = await fetch(BASE + "/result/teacher/" + user.id, { method: "GET", headers: headers() });
+            const data = await safeJson(res);
+            if (!res.ok) {
+                list.innerHTML = `<p class="muted">Natijalarni yuklab bo'lmadi. Status: ${res.status}</p>`;
+                return;
+            }
+            resultsCache = getArray(data);
+            renderResults();
+            updateStats();
+        } catch (e) {
+            list.innerHTML = `<p class="muted">Backendga ulanib bo'lmadi.</p>`;
+        }
+    }
+
+    function renderResults() {
+        const list = document.getElementById("resultsList");
+        list.innerHTML = "";
+        if (!resultsCache || resultsCache.length === 0) {
+            list.innerHTML = `<p class="muted" style="text-align:center; padding:32px;">Hali natijalar mavjud emas.</p>`;
+            return;
+        }
+        resultsCache.forEach(r => {
+            const pct = Math.round(Number(r.percentage || 0));
+            list.innerHTML += `
+                <div class="result-item">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+                        <div>
+                            <div class="item-title" style="margin-bottom:6px;">${escapeHtml(r.testTitle || r.testName || "Test")}</div>
+                            <div class="muted">👤 ${escapeHtml(r.studentFullName || r.studentName || "-")}</div>
+                            <div class="muted" style="margin-top:4px;">📅 ${formatDate(r.submittedAt)}</div>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <div class="percent-badge" style="font-size:20px; padding:8px 16px;">${pct}%</div>
+                            <div class="muted" style="margin-top:6px; font-size:12px;">${r.score ?? 0} / ${r.totalPoints ?? 0} ball</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function updateStats() {
+        document.getElementById("testCount").innerText = testsCache.length;
+        let totalQ = 0;
+        testsCache.forEach(t => { totalQ += Array.isArray(t.questions) ? t.questions.length : 0; });
+        document.getElementById("questionCount").innerText = totalQ;
+        document.getElementById("resultCount").innerText = resultsCache.length;
+        if (!resultsCache.length) { document.getElementById("avgPercent").innerText = "0%"; return; }
+        const sum = resultsCache.reduce((acc, r) => acc + Number(r.percentage || 0), 0);
+        document.getElementById("avgPercent").innerText = Math.round(sum / resultsCache.length) + "%";
+    }
+
+    function translateType(type) {
+        if (type === "SINGLE_CHOICE") return "Yagona tanlov";
+        if (type === "MULTIPLE_CHOICE") return "Ko'p tanlovli";
+        if (type === "TRUE_FALSE") return "Ha / Yo'q";
+        if (type === "MATCHING") return "Moslashtirish";
+        return type || "-";
+    }
+
+    function translateLevel(level) {
+        if (level === "EASY") return "Oson";
+        if (level === "MEDIUM") return "O'rtacha";
+        if (level === "HARD") return "Qiyin";
+        return level || "-";
+    }
+
+    function formatDate(date) {
+        if (!date) return "-";
+        return new Date(date).toLocaleString("uz-UZ");
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) { return escapeHtml(value); }
+
+    async function init() {
+        fillProfile();
+        clearQuestionForm();
+        renderQuestionList();
+        await loadTests();
+        await loadResults();
+        showSection("dashboard", document.querySelector(".menu-btn"));
+    }
+
+    init();
+</script>
+</body>
+</html>
