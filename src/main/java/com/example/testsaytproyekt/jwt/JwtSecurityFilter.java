@@ -30,7 +30,7 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final ObjectMapper objectMapper=new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -54,28 +54,25 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (StringUtils.isBlank(header) || !header.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
-            String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-            if (StringUtils.isBlank(header) || !header.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             String token = header.substring(7);
             Claims claims = jwtService.claims(token);
 
             String username = claims.getSubject();
+
             if (StringUtils.isBlank(username)) {
                 throw new JwtException("Missing subject in JWT");
             }
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-                if (!userDetails.isEnabled()) {
-                    throw new JwtException("User disabled");
-                }
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -88,23 +85,20 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-            filterChain.doFilter(request, response);
-
         } catch (ExpiredJwtException e) {
             log.warn("Expired JWT token at {} from {}: {}",
                     request.getRequestURI(), request.getRemoteAddr(), e.getMessage());
             sendErrorResponse(response, "Token expired. Please login again.");
+            return;
 
         } catch (JwtException e) {
             log.warn("Invalid JWT token at {} from {}: {}",
                     request.getRequestURI(), request.getRemoteAddr(), e.getMessage());
             sendErrorResponse(response, "Invalid JWT token.");
-
-        } catch (Exception e) {
-            log.error("Unexpected JWT error at {} from {}: {}",
-                    request.getRequestURI(), request.getRemoteAddr(), e.getMessage(), e);
-            sendErrorResponse(response, "Authentication failed due to internal error.");
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
