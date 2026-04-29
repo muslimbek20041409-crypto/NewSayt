@@ -1,11 +1,11 @@
 server:
-  port: ${PORT:8081}
+  port: ${PORT:8081}   # Railway o‘zi port beradi
   servlet:
     context-path: /api/v1
 
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL:jdbc:postgresql://postgres.railway.internal:5432/railway}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -25,12 +25,13 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: ${REDIS_TIMEOUT:60000}
-      database: ${REDIS_DATABASE:0}
+      database: ${REDIS_DB:0}
 
 security:
   jwt:
-    key: ${JWT_SECRET_KEY}
+    key: ${JWT_SECRET_KEY:WC+qbHYl2B0o02421L+2UayDp2LtczY/3cSkAyErfTjmcEOXNtyjXq0un/SdY4cw}
     issuer: ${JWT_ISSUER:https://secure-java-sayd.com}
+    expiration: ${JWT_EXPIRATION:259200000}
 
 springdoc:
   api-docs:
