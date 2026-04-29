@@ -928,6 +928,13 @@ function collectAnswers(questions) {
 function showInstantResult(result = {}) {
     const percent = Math.round(Number(result.percentage || 0));
 
+    const form = document.getElementById('solveForm');
+    if (form) {
+        form.remove();
+    }
+
+    clearTimer();
+
     $('#instantResultBox').innerHTML = `
         <div class="result-reveal">
             <h2>🎉 Natijangiz tayyor!</h2>
@@ -948,11 +955,21 @@ function showInstantResult(result = {}) {
             </div>
 
             <p class="muted" style="margin-top:14px">📅 Topshirildi: ${formatDate(result.submittedAt)}</p>
+
+            <button class="btn btn-primary" style="margin-top:16px" onclick="goToTestsAfterSubmit()">
+                📋 Testlar ro‘yxatiga qaytish
+            </button>
         </div>
     `;
 
     showMessage('Natija muvaffaqiyatli saqlandi!');
     $('#instantResultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function goToTestsAfterSubmit() {
+    await loadResults(false);
+    await loadTests();
+    showSection('testsSection');
 }
 
 async function loadResults(render = true) {
