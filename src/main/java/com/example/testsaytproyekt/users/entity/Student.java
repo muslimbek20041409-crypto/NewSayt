@@ -86,9 +86,9 @@ public class Student implements UserDetails {
 
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "student")
-    @JsonIgnore
-    private List<Result> results;
+@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+        @JsonIgnore
+private List<Result> results;
 
     @PrePersist
     public void prePersist() {
