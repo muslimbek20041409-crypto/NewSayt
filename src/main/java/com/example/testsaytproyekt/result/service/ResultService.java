@@ -1,11 +1,11 @@
 package com.example.testsaytproyekt.result.service;
 
 import com.example.testsaytproyekt.question.entity.Question;
-import com.example.testsaytproyekt.result.repository.ResultRepository;
 import com.example.testsaytproyekt.result.dto.AnswerDto;
 import com.example.testsaytproyekt.result.dto.ResultCreateDto;
 import com.example.testsaytproyekt.result.dto.ResultResponseDto;
 import com.example.testsaytproyekt.result.entity.Result;
+import com.example.testsaytproyekt.result.repository.ResultRepository;
 import com.example.testsaytproyekt.test.entity.Test;
 import com.example.testsaytproyekt.test.repository.TestRepository;
 import com.example.testsaytproyekt.users.entity.Student;
@@ -13,13 +13,10 @@ import com.example.testsaytproyekt.users.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +27,7 @@ public class ResultService {
     private final StudentRepository studentRepository;
     private final TestRepository testRepository;
 
+    @Transactional
     public ResultResponseDto checkAnswers(ResultCreateDto dto) {
 
         String username = SecurityContextHolder.getContext()
@@ -67,9 +65,7 @@ public class ResultService {
         result.setPercentage(totalPoints == 0 ? 0 : score * 100.0 / totalPoints);
         result.setSubmittedAt(LocalDateTime.now());
 
-        Result saved = repository.save(result);
-
-        return toDto(saved);
+        return toDto(repository.save(result));
     }
 
     private String findAnswer(List<AnswerDto> answers, UUID questionId) {
@@ -102,8 +98,8 @@ public class ResultService {
             return false;
         }
 
-        String correct = normalize(question.getTrueAnswers().get(0));
-        String given = normalize(studentAnswer);
+        String correct = normalizeAnswerValue(question, question.getTrueAnswers().get(0));
+        String given = normalizeAnswerValue(question, studentAnswer);
 
         return correct.equals(given);
     }
@@ -116,10 +112,15 @@ public class ResultService {
         Set<String> correctAnswers = question.getTrueAnswers()
                 .stream()
                 .filter(Objects::nonNull)
-                .map(this::normalize)
+                .map(answer -> normalizeAnswerValue(question, answer))
+                .filter(s -> !s.isBlank())
                 .collect(Collectors.toSet());
 
-        Set<String> givenAnswers = splitToSet(studentAnswer);
+        Set<String> givenAnswers = Arrays.stream(studentAnswer.split("[,;]"))
+                .filter(Objects::nonNull)
+                .map(answer -> normalizeAnswerValue(question, answer))
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.toSet());
 
         return correctAnswers.equals(givenAnswers);
     }
@@ -129,8 +130,8 @@ public class ResultService {
             return false;
         }
 
-        String correct = normalize(question.getTrueFalseAnswer());
-        String given = normalize(studentAnswer);
+        String correct = normalizeTrueFalse(question.getTrueFalseAnswer());
+        String given = normalizeTrueFalse(studentAnswer);
 
         return correct.equals(given);
     }
@@ -144,9 +145,11 @@ public class ResultService {
                 .stream()
                 .filter(Objects::nonNull)
                 .map(this::normalizePair)
+                .filter(s -> !s.isBlank())
                 .collect(Collectors.toSet());
 
         Set<String> givenPairs = Arrays.stream(studentAnswer.split("[,;]"))
+                .filter(Objects::nonNull)
                 .map(this::normalizePair)
                 .filter(s -> !s.isBlank())
                 .collect(Collectors.toSet());
@@ -154,30 +157,82 @@ public class ResultService {
         return correctPairs.equals(givenPairs);
     }
 
-    private Set<String> splitToSet(String value) {
-        return Arrays.stream(value.split("[,;]"))
-                .map(this::normalize)
-                .filter(s -> !s.isBlank())
-                .collect(Collectors.toSet());
+    private String normalizeAnswerValue(Question question, String value) {
+        if (value == null) return "";
+
+        String normalized = normalize(value);
+
+        // Agar frontend A/B/C yuborsa, uni allAnswers dagi matnga aylantiradi
+        if (normalized.length() == 1 && normalized.charAt(0) >= 'A' && normalized.charAt(0) <= 'Z') {
+            int index = normalized.charAt(0) - 'A';
+
+            if (question.getAllAnswers() != null
+                    && index >= 0
+                    && index < question.getAllAnswers().size()) {
+                return normalize(question.getAllAnswers().get(index));
+            }
+        }
+
+        return normalized;
+    }
+
+    private String normalizeTrueFalse(String value) {
+        if (value == null) return "";
+
+        String v = value.trim()
+                .replace("’", "'")
+                .replace("‘", "'")
+                .replace("`", "'")
+                .toUpperCase();
+
+        if (v.equals("HA")
+                || v.equals("YES")
+                || v.equals("TRUE")
+                || v.equals("TOG'RI")
+                || v.equals("TO‘G‘RI")
+                || v.equals("TO‘G'RI")
+                || v.equals("TOG‘RI")) {
+            return "TRUE";
+        }
+
+        if (v.equals("YOQ")
+                || v.equals("YO'Q")
+                || v.equals("YO‘Q")
+                || v.equals("NO")
+                || v.equals("FALSE")
+                || v.equals("NOTO'G'RI")
+                || v.equals("NOTO‘G‘RI")
+                || v.equals("NOTO‘G'RI")
+                || v.equals("NOTOG'RI")) {
+            return "FALSE";
+        }
+
+        return v;
     }
 
     private String normalize(String value) {
         if (value == null) return "";
+
         return value.trim()
                 .replace("’", "'")
                 .replace("‘", "'")
+                .replace("`", "'")
+                .replaceAll("\\s+", " ")
                 .toUpperCase();
     }
 
     private String normalizePair(String value) {
         if (value == null) return "";
+
         return value.trim()
-                .replace(" ", "")
                 .replace("’", "'")
                 .replace("‘", "'")
+                .replace("`", "'")
+                .replaceAll("\\s+", "")
                 .toLowerCase();
     }
 
+    @Transactional(readOnly = true)
     public List<ResultResponseDto> getByTeacher(UUID teacherId) {
         return repository.findByTestTeacherId(teacherId)
                 .stream()
@@ -185,6 +240,7 @@ public class ResultService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ResultResponseDto> getByTest(UUID testId) {
         return repository.findByTestId(testId)
                 .stream()
@@ -192,6 +248,7 @@ public class ResultService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ResultResponseDto> getAll() {
         return repository.findAll()
                 .stream()
@@ -199,6 +256,7 @@ public class ResultService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ResultResponseDto> getMyResults() {
         String username = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -228,7 +286,6 @@ public class ResultService {
 
         if (result.getStudent() != null) {
             dto.setStudentId(result.getStudent().getId());
-            dto.setStudentName(result.getStudent().getFullName());
             dto.setStudentName(result.getStudent().getFullName());
         }
 
