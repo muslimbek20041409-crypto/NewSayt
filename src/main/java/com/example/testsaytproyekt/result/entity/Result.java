@@ -2,13 +2,11 @@ package com.example.testsaytproyekt.result.entity;
 
 import com.example.testsaytproyekt.test.entity.Test;
 import com.example.testsaytproyekt.users.entity.Student;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,26 +15,30 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "results")
 public class Result {
 
     @Id
     @GeneratedValue
     private UUID id;
 
-@ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     @JsonIgnore
     private Student student;
 
-    @ManyToOne
-    @JoinColumn( nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_id", nullable = false)
+    @JsonIgnore
     private Test test;
 
-  @Min(0)
+    @Min(0)
     private int score;
-   @Min(0)
+
+    @Min(0)
     private int totalPoints;
-@Min(0)
+
+    @Min(0)
     private double percentage;
 
     private LocalDateTime submittedAt = LocalDateTime.now();
