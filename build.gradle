@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Template
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Data
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Validation & Mail
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Dev
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Database drivers
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Swagger (faqat bittasini tanla — hozir springdoc qoldirdim)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+    // Utils
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'net.coobird:thumbnailator:0.4.8'
+    implementation 'org.modelmapper:modelmapper:3.2.0'
+
+    //Telegram
+    implementation 'org.telegram:telegrambots:6.9.7.1'
+    implementation 'org.telegram:telegrambots-spring-boot-starter:6.9.7.1'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Redis client (agar kerak bo‘lsa)
+    implementation 'redis.clients:jedis:5.1.0'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //Modemapper
+    implementation 'org.modelmapper:modelmapper:3.2.0'
+};
