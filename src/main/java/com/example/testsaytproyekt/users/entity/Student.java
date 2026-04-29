@@ -1,18 +1,13 @@
-package com.example.testsaytproyekt.users.entity;
+package com.example.testsaytproyekt.question.entity;
 
-import com.example.testsaytproyekt.enums.Role;
-import com.example.testsaytproyekt.result.entity.Result;
+import com.example.testsaytproyekt.test.entity.Test;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.LocalDateTime;
-import java.util.Collection;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,139 +17,94 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Student implements UserDetails {
+public class Question {
 
     @Id
     @GeneratedValue
-    @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @NotBlank
-    @Column(nullable = false)
-    private String fullName;
-
-    @Column(nullable = true)
-    private Long telegramId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_id")
+    @JsonIgnore
+    private Test test;
 
     @NotBlank
-    @Pattern(regexp = "^\\+?[1-9]\\d{7,14}$", message = "Phone number must be valid")
-    @Column(nullable = false, unique = true)
-    private String phoneNumber;
-
-    @NotBlank
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    @JsonIgnore
-    @NotBlank
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private boolean verified = false;
-
-    @JsonIgnore
-    private String verificationCode;
-
-    @JsonIgnore
-    private LocalDateTime codeExpiryTime;
-
-    @JsonIgnore
-    private String resetCode;
-
-    @JsonIgnore
-    private LocalDateTime resetCodeExpiryTime;
-
-    @JsonIgnore
-    private Boolean resetVerified = false;
-
-    @Column(nullable = false)
-    private Integer resendCount = 0;
-
-    private LocalDateTime blockedUntil;
+    @Column(nullable = false, length = 2000)
+    private String questionText;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.STUDENT;
+    private QuestionType questionType;
 
-    @JsonIgnore
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "question_all_answers",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @OrderColumn(name = "answer_order")
+    @Builder.Default
+    private List<String> allAnswers = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "question_true_answers",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @OrderColumn(name = "answer_order")
+    @Builder.Default
+    private List<String> trueAnswers = new ArrayList<>();
+
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "question_left_items",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @OrderColumn(name = "left_order")
+    @Builder.Default
+    private List<String> leftItems = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "question_right_items",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @OrderColumn(name = "right_order")
+    @Builder.Default
+    private List<String> rightItems = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "question_correct_pairs",
+            joinColumns = @JoinColumn(name = "question_id")
+    )
+    @OrderColumn(name = "pair_order")
+    @Builder.Default
+    private List<String> correctPairs = new ArrayList<>();
+
+
+    @Column(length = 20)
+    private String trueFalseAnswer;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean active = true;
+    private QuestionLevel questionLevel;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Min(1)
+    @Column(nullable = false)
+    private int points;
 
-    private LocalDateTime updatedAt;
-
-@OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-        @JsonIgnore
-private List<Result> results;
-
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (resendCount == null) {
-            resendCount = 0;
-        }
-        if (resetVerified == null) {
-            resetVerified = false;
-        }
+    public enum QuestionType {
+        SINGLE_CHOICE,
+        MULTIPLE_CHOICE,
+        MATCHING,
+        TRUE_FALSE
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    @JsonIgnore
-    public String getFullName() {
-        return fullName;
-    }
-
-    @Override
-    @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
-
-    @Override
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonExpired() {
-        return active;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonLocked() {
-        return active;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isCredentialsNonExpired() {
-        return active;
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean isEnabled() {
-        return verified && active;
+    public enum QuestionLevel {
+        EASY,
+        MEDIUM,
+        HARD
     }
 }
