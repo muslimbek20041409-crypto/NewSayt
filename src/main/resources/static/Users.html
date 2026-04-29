@@ -1,53 +1,18 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
     <title>O‘quvchi paneli</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        :root {
-            --bg: #070b12;
-            --surface: #0c1220;
-            --surface-2: #111827;
-            --surface-3: #182235;
-            --border: rgba(148, 163, 184, .12);
-            --border-strong: rgba(99, 102, 241, .36);
-            --primary: #4f8cff;
-            --primary-2: #7c5cfc;
-            --success: #22d3a0;
-            --danger: #ff6b7a;
-            --text: #e6eeff;
-            --muted: #8a99bb;
-            --muted-2: #596982;
-            --radius: 20px;
-            --shadow: 0 24px 80px rgba(0,0,0,.35);
-            --sidebar: 264px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            min-height: 100vh;
             font-family: Arial, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(79,140,255,.12), transparent 32rem),
-                radial-gradient(circle at bottom right, rgba(124,92,252,.10), transparent 34rem),
-                var(--bg);
-            overflow-x: hidden;
-        }
-
-        button, input, select {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
+            min-height: 100vh;
+            background: #07111f;
+            color: white;
         }
 
         .app {
@@ -56,186 +21,104 @@
         }
 
         .sidebar {
-            width: var(--sidebar);
-            min-height: 100vh;
+            width: 250px;
+            background: #0f172a;
+            padding: 24px 16px;
             position: fixed;
-            inset: 0 auto 0 0;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            padding: 26px 16px;
-            background: rgba(12,18,32,.86);
-            border-right: 1px solid var(--border);
-            backdrop-filter: blur(18px);
+            top: 0;
+            bottom: 0;
+            left: 0;
         }
 
         .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 8px 28px;
-        }
-
-        .brand__mark {
-            width: 42px;
-            height: 42px;
-            display: grid;
-            place-items: center;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
-        }
-
-        .brand__title {
-            font-size: 19px;
-            font-weight: 900;
-        }
-
-        .brand__subtitle {
-            color: var(--muted-2);
-            font-size: 11px;
-            margin-top: 2px;
-        }
-
-        .nav-label {
-            color: var(--muted-2);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1.7px;
-            text-transform: uppercase;
-            padding: 0 12px;
-            margin: 8px 0;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
         }
 
         .nav-btn {
             width: 100%;
-            border: 1px solid transparent;
-            border-radius: 14px;
-            padding: 12px 13px;
-            margin: 2px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--muted);
+            padding: 12px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 10px;
             background: transparent;
+            color: #cbd5e1;
             text-align: left;
-            font-size: 14px;
-            font-weight: 600;
-            transition: .18s ease;
+            cursor: pointer;
+            font-weight: bold;
         }
 
-        .nav-btn:hover {
-            color: var(--text);
-            background: rgba(255,255,255,.035);
-        }
-
+        .nav-btn:hover,
         .nav-btn.active {
-            color: #fff;
-            background: linear-gradient(135deg, rgba(79,140,255,.18), rgba(124,92,252,.12));
-            border-color: var(--border-strong);
+            background: #2563eb;
+            color: white;
         }
 
         .nav-btn.danger {
-            color: rgba(255,107,122,.78);
-            margin-top: auto;
-        }
-
-        .nav-btn.danger:hover {
-            color: var(--danger);
-            background: rgba(255,107,122,.08);
+            color: #fca5a5;
+            margin-top: 40px;
         }
 
         .main {
-            width: calc(100% - var(--sidebar));
-            margin-left: var(--sidebar);
-            padding: 34px 38px;
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 30px;
         }
 
         .topbar {
             display: flex;
-            align-items: flex-start;
             justify-content: space-between;
-            gap: 18px;
-            margin-bottom: 30px;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
         .title {
-            font-size: 34px;
-            font-weight: 900;
+            font-size: 30px;
+            margin-bottom: 6px;
         }
 
         .subtitle {
-            color: var(--muted-2);
-            font-size: 14px;
-            margin-top: 6px;
+            color: #94a3b8;
         }
 
         .student-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            background: #1e293b;
             padding: 10px 16px;
             border-radius: 999px;
-            border: 1px solid var(--border-strong);
-            background: rgba(17,24,39,.78);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
+            font-weight: bold;
         }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             margin-bottom: 24px;
         }
 
-        .stat, .card, .item-card, .question-card, .result-card {
-            border: 1px solid var(--border);
-            background: rgba(12,18,32,.82);
-            border-radius: var(--radius);
+        .stat,
+        .card,
+        .item-card,
+        .question-card,
+        .result-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 18px;
         }
 
         .stat {
-            padding: 20px;
-        }
-
-        .stat__icon {
-            font-size: 23px;
-            margin-bottom: 10px;
+            padding: 18px;
         }
 
         .stat__label {
-            color: var(--muted-2);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
+            color: #94a3b8;
+            font-size: 13px;
         }
 
         .stat__value {
-            font-size: 34px;
-            font-weight: 900;
-            margin-top: 5px;
-        }
-
-        .message {
-            min-height: 24px;
-            margin: 0 0 14px;
-            font-size: 13px;
-            font-weight: 800;
-        }
-
-        .message.success {
-            color: var(--success);
-        }
-
-        .message.error {
-            color: var(--danger);
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 8px;
         }
 
         .section {
@@ -247,137 +130,82 @@
         }
 
         .card {
-            padding: 24px;
+            padding: 22px;
         }
 
         .section-head {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .section-head h2 {
-            font-size: 20px;
-            font-weight: 900;
+            align-items: center;
+            margin-bottom: 18px;
         }
 
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: 0;
-            border-radius: 13px;
-            padding: 11px 17px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
             color: white;
-            font-size: 13px;
-            font-weight: 800;
-            transition: .18s ease;
+            font-weight: bold;
+            cursor: pointer;
         }
 
+        .btn-primary { background: #2563eb; }
+        .btn-success { background: #16a34a; }
+        .btn-soft { background: #334155; }
+
         .btn:disabled {
-            opacity: .55;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        .message {
+            min-height: 24px;
+            margin-bottom: 15px;
+            font-weight: bold;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #059669, var(--success));
-        }
-
-        .btn-soft {
-            color: var(--muted);
-            background: rgba(255,255,255,.04);
-            border: 1px solid var(--border);
-        }
-
-        .btn-sm {
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-        }
+        .message.success { color: #22c55e; }
+        .message.error { color: #f87171; }
 
         .hero {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 22px;
-            padding: 34px;
-            border-radius: var(--radius);
-            border: 1px solid rgba(79,140,255,.16);
-            background: linear-gradient(135deg, rgba(79,140,255,.12), rgba(124,92,252,.06));
-            box-shadow: var(--shadow);
+            background: linear-gradient(135deg, #1e3a8a, #0f766e);
+            padding: 28px;
+            border-radius: 20px;
             margin-bottom: 18px;
         }
 
         .hero h2 {
-            font-size: 26px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .hero p {
-            max-width: 560px;
-            color: var(--muted);
-            line-height: 1.75;
-            font-size: 14px;
-        }
-
-        .hero__emoji {
-            font-size: 70px;
-            opacity: .62;
-        }
-
-        .quick-grid, .profile-grid {
+        .quick-grid,
+        .profile-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 13px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
         }
 
-        .quick-action, .profile-card {
-            border: 1px solid var(--border);
+        .quick-action,
+        .profile-card {
+            background: #0f172a;
+            border: 1px solid #334155;
             border-radius: 16px;
-            background: rgba(12,18,32,.76);
-            padding: 20px;
-        }
-
-        .quick-action {
+            padding: 18px;
             cursor: pointer;
         }
 
         .quick-action:hover {
-            border-color: var(--border-strong);
-            background: rgba(79,140,255,.06);
-        }
-
-        .quick-action__icon {
-            font-size: 27px;
-            margin-bottom: 10px;
-        }
-
-        .quick-action__title, .profile-card__value {
-            font-weight: 900;
-        }
-
-        .quick-action__desc, .profile-card__label, .muted {
-            color: var(--muted-2);
-            font-size: 13px;
-            line-height: 1.65;
+            background: #1e293b;
         }
 
         .profile-card__label {
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: 900;
-            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 6px;
         }
 
         .profile-card__value {
-            font-size: 18px;
+            font-weight: bold;
         }
 
         .list {
@@ -385,259 +213,193 @@
             gap: 12px;
         }
 
-        .empty {
-            text-align: center;
-            padding: 38px 10px;
-            color: var(--muted-2);
-        }
-
-        .item-card, .result-card {
-            padding: 20px;
+        .item-card,
+        .result-card {
+            padding: 18px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 18px;
+            gap: 14px;
+            align-items: center;
         }
 
         .item-title {
-            font-size: 17px;
-            margin-bottom: 7px;
-            font-weight: 900;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .muted {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px;
         }
 
         .tag {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 999px;
+            display: inline-block;
             padding: 4px 10px;
-            margin: 2px 5px 2px 0;
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-
-        .tag-blue {
-            color: var(--primary);
-            background: rgba(79,140,255,.12);
+            border-radius: 999px;
+            background: #1d4ed8;
+            color: white;
+            font-size: 12px;
+            margin-bottom: 6px;
         }
 
         .question-card {
-            padding: 22px;
+            padding: 20px;
             margin-bottom: 14px;
         }
 
         .question-meta {
-            color: var(--primary);
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
+            color: #60a5fa;
+            font-size: 13px;
+            font-weight: bold;
             margin-bottom: 8px;
         }
 
         .question-text {
             font-size: 18px;
-            line-height: 1.45;
+            font-weight: bold;
             margin-bottom: 14px;
-            font-weight: 900;
         }
 
         .answer-option {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
+            gap: 10px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 12px;
             margin-bottom: 8px;
-            border-radius: 14px;
-            background: rgba(17,24,39,.72);
-            border: 1px solid var(--border);
             cursor: pointer;
         }
 
-        .answer-option:hover, .answer-option.selected {
-            border-color: var(--primary);
-            background: rgba(79,140,255,.08);
+        .answer-option.selected,
+        .answer-option:hover {
+            border-color: #3b82f6;
+            background: #172554;
         }
 
         .option-letter {
-            width: 27px;
-            height: 27px;
-            flex: 0 0 27px;
+            width: 28px;
+            height: 28px;
             display: grid;
             place-items: center;
-            border-radius: 9px;
-            color: var(--primary);
-            background: var(--surface-3);
-            font-size: 12px;
-            font-weight: 900;
+            background: #0f172a;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #60a5fa;
         }
 
         .match-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 12px;
             margin-bottom: 10px;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            background: rgba(17,24,39,.72);
-        }
-
-        .match-left {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            font-weight: 800;
         }
 
         select {
             width: 100%;
-            padding: 12px 13px;
-            color: var(--text);
-            background: var(--surface);
-            border: 1px solid var(--border-strong);
-            border-radius: 12px;
-            outline: none;
+            padding: 10px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: white;
+            border: 1px solid #334155;
         }
 
         option {
-            background: var(--surface-2);
+            background: #0f172a;
         }
 
         .submit-bar {
             position: sticky;
-            bottom: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-top: 22px;
-            padding: 16px 18px;
-            border: 1px solid var(--border-strong);
+            bottom: 20px;
+            background: #020617;
+            border: 1px solid #2563eb;
             border-radius: 18px;
-            background: rgba(12,18,32,.92);
-            box-shadow: var(--shadow);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .timer {
+            font-size: 18px;
+            color: #facc15;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
 
         .result-reveal {
             margin-top: 22px;
-            padding: 26px;
-            border-radius: var(--radius);
-            border: 1px solid rgba(34,211,160,.22);
-            background: linear-gradient(135deg, rgba(34,211,160,.10), rgba(79,140,255,.06));
-        }
-
-        .result-reveal h2 {
-            color: var(--success);
-            margin-bottom: 16px;
+            background: #052e16;
+            border: 1px solid #22c55e;
+            padding: 20px;
+            border-radius: 18px;
         }
 
         .result-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
+            margin-top: 14px;
         }
 
         .result-mini {
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            background: rgba(12,18,32,.78);
+            background: #0f172a;
             padding: 16px;
+            border-radius: 14px;
             text-align: center;
         }
 
         .result-mini small {
             display: block;
-            color: var(--muted-2);
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: 900;
+            color: #94a3b8;
             margin-bottom: 6px;
         }
 
         .result-mini b {
-            font-size: 26px;
+            font-size: 24px;
         }
 
-        .percent-ring {
-            --value: 0deg;
-            width: 66px;
-            height: 66px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            background: conic-gradient(var(--success) var(--value), var(--surface-3) 0);
-            position: relative;
-            flex-shrink: 0;
-        }
+        @media (max-width: 900px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+            }
 
-        .percent-ring::before {
-            content: '';
-            position: absolute;
-            inset: 6px;
-            border-radius: 50%;
-            background: var(--surface);
-        }
-
-        .percent-ring span {
-            position: relative;
-            z-index: 1;
-            font-weight: 900;
-            font-size: 14px;
-        }
-
-        @media (max-width: 1100px) {
             .app {
                 display: block;
             }
 
-            .sidebar {
-                position: static;
-                width: 100%;
-                min-height: auto;
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-
-            .brand {
-                width: 100%;
-                padding-bottom: 14px;
-            }
-
-            .nav-label {
-                display: none;
-            }
-
-            .nav-btn {
-                width: auto;
-            }
-
             .main {
-                width: 100%;
                 margin-left: 0;
-                padding: 22px;
+                width: 100%;
             }
 
-            .stats, .quick-grid, .profile-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 640px) {
-            .topbar, .hero, .item-card, .result-card, .submit-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .stats, .quick-grid, .profile-grid, .result-grid, .match-row {
+            .stats,
+            .quick-grid,
+            .profile-grid,
+            .result-grid,
+            .match-row {
                 grid-template-columns: 1fr;
             }
 
-            .hero__emoji {
-                display: none;
-            }
-
-            .main {
-                padding: 16px;
+            .item-card,
+            .result-card,
+            .submit-bar,
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>
@@ -646,15 +408,8 @@
 <body>
 <div class="app">
     <aside class="sidebar">
-        <div class="brand">
-            <div class="brand__mark">🎓</div>
-            <div>
-                <div class="brand__title">EduPanel</div>
-                <div class="brand__subtitle">O‘quvchi platformasi</div>
-            </div>
-        </div>
+        <div class="brand">🎓 EduPanel</div>
 
-        <div class="nav-label">Navigatsiya</div>
         <button class="nav-btn active" data-section="dashboard">🏠 Asosiy panel</button>
         <button class="nav-btn" data-section="testsSection" data-action="loadTests">📋 Testlar</button>
         <button class="nav-btn" data-section="resultsSection" data-action="loadResults">📊 Mening natijalarim</button>
@@ -668,30 +423,23 @@
                 <h1 class="title" id="pageTitle">Asosiy panel</h1>
                 <p class="subtitle" id="pageSub">Bugun qanday test ishlashni xohlaysiz?</p>
             </div>
-            <div class="student-pill">
-                <span class="status-dot"></span>
-                <span id="studentNameTop">O‘quvchi</span>
-            </div>
+            <div class="student-pill" id="studentNameTop">O‘quvchi</div>
         </header>
 
         <div class="stats">
             <div class="stat">
-                <div class="stat__icon">📚</div>
                 <div class="stat__label">Mavjud testlar</div>
                 <div class="stat__value" id="testCount">0</div>
             </div>
             <div class="stat">
-                <div class="stat__icon">✅</div>
                 <div class="stat__label">Ishlangan</div>
                 <div class="stat__value" id="resultCount">0</div>
             </div>
             <div class="stat">
-                <div class="stat__icon">📈</div>
                 <div class="stat__label">O‘rtacha natija</div>
                 <div class="stat__value" id="avgPercent">0%</div>
             </div>
             <div class="stat">
-                <div class="stat__icon">🏆</div>
                 <div class="stat__label">Eng yaxshi</div>
                 <div class="stat__value" id="bestPercent">0%</div>
             </div>
@@ -701,28 +449,22 @@
 
         <section id="dashboard" class="section active">
             <div class="hero">
-                <div>
-                    <h2>Xush kelibsiz, <span id="welcomeName">O‘quvchi</span>! 👋</h2>
-                    <p>Bu panel orqali testlarni ishlashingiz, natijangizni darhol ko‘rishingiz va barcha yutuqlaringizni kuzatishingiz mumkin.</p>
-                </div>
-                <div class="hero__emoji">🧑‍🎓</div>
+                <h2>Xush kelibsiz, <span id="welcomeName">O‘quvchi</span>! 👋</h2>
+                <p>Bu panel orqali testlarni ishlashingiz, natijangizni ko‘rishingiz va yutuqlaringizni kuzatishingiz mumkin.</p>
             </div>
 
             <div class="quick-grid">
                 <div class="quick-action" data-section="testsSection" data-action="loadTests">
-                    <div class="quick-action__icon">📋</div>
-                    <div class="quick-action__title">Testlarni ko‘rish</div>
-                    <div class="quick-action__desc">Mavjud barcha testlar</div>
+                    <h3>📋 Testlarni ko‘rish</h3>
+                    <p class="muted">Mavjud barcha testlar</p>
                 </div>
                 <div class="quick-action" data-section="resultsSection" data-action="loadResults">
-                    <div class="quick-action__icon">📊</div>
-                    <div class="quick-action__title">Mening natijalarim</div>
-                    <div class="quick-action__desc">Barcha topshiriqlarim</div>
+                    <h3>📊 Mening natijalarim</h3>
+                    <p class="muted">Barcha topshirgan testlarim</p>
                 </div>
                 <div class="quick-action" data-section="profileSection">
-                    <div class="quick-action__icon">👤</div>
-                    <div class="quick-action__title">Profil</div>
-                    <div class="quick-action__desc">Shaxsiy ma‘lumotlar</div>
+                    <h3>👤 Profil</h3>
+                    <p class="muted">Shaxsiy ma’lumotlar</p>
                 </div>
             </div>
         </section>
@@ -730,8 +472,9 @@
         <section id="profileSection" class="section">
             <div class="card">
                 <div class="section-head">
-                    <h2>Profil ma‘lumotlari</h2>
+                    <h2>Profil ma’lumotlari</h2>
                 </div>
+
                 <div class="profile-grid">
                     <div class="profile-card">
                         <div class="profile-card__label">Ism familiya</div>
@@ -753,7 +496,7 @@
             <div class="card">
                 <div class="section-head">
                     <h2>Mavjud testlar</h2>
-                    <button class="btn btn-soft btn-sm" id="refreshTestsBtn">🔄 Yangilash</button>
+                    <button class="btn btn-soft" id="refreshTestsBtn">🔄 Yangilash</button>
                 </div>
                 <div id="testsList" class="list"></div>
             </div>
@@ -763,7 +506,7 @@
             <div class="card">
                 <div class="section-head">
                     <h2>Testni ishlash</h2>
-                    <button class="btn btn-soft btn-sm" data-section="testsSection">← Ortga</button>
+                    <button class="btn btn-soft" data-section="testsSection">← Ortga</button>
                 </div>
                 <div id="solveBox"></div>
             </div>
@@ -773,7 +516,7 @@
             <div class="card">
                 <div class="section-head">
                     <h2>Mening natijalarim</h2>
-                    <button class="btn btn-soft btn-sm" id="refreshResultsBtn">🔄 Yangilash</button>
+                    <button class="btn btn-soft" id="refreshResultsBtn">🔄 Yangilash</button>
                 </div>
                 <div id="resultsList" class="list"></div>
             </div>
@@ -786,13 +529,9 @@
 
 const CONFIG = {
     baseUrl: `${window.location.origin}/api/v1`,
-    loginPage: '/api/v1/sign-in.html'
+    loginPage: '/api/v1/sign-in.html',
+    testMinutes: 15
 };
-
-function cleanToken(token) {
-    if (!token || token === 'null' || token === 'undefined') return null;
-    return token.replace(/^Bearer\s+/i, '').trim();
-}
 
 function parseJson(value) {
     try {
@@ -802,20 +541,28 @@ function parseJson(value) {
     }
 }
 
+function cleanToken(token) {
+    if (!token || token === 'null' || token === 'undefined') return null;
+    return String(token).replace(/^Bearer\s+/i, '').trim();
+}
+
 const state = {
     token: cleanToken(localStorage.getItem('token')),
     user: parseJson(localStorage.getItem('user')) || {},
     tests: [],
     results: [],
-    currentTest: null
+    currentTest: null,
+    timerInterval: null,
+    timeLeft: CONFIG.testMinutes * 60,
+    submitting: false
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
 const pageMeta = {
     dashboard: { title: 'Asosiy panel', sub: 'Bugun qanday test ishlashni xohlaysiz?' },
-    profileSection: { title: 'Profil', sub: 'Shaxsiy ma‘lumotlaringiz' },
+    profileSection: { title: 'Profil', sub: 'Shaxsiy ma’lumotlaringiz' },
     testsSection: { title: 'Testlar', sub: 'Barcha mavjud testlar ro‘yxati' },
     solveSection: { title: 'Testni ishlash', sub: 'Savollarni diqqat bilan o‘qing' },
     resultsSection: { title: 'Mening natijalarim', sub: 'Barcha topshirgan testlaringiz' }
@@ -881,10 +628,11 @@ async function api(path, options = {}) {
     if (response.status === 401 || response.status === 403) {
         console.error('AUTH ERROR:', response.status, text);
         showMessage('Token xato yoki sessiya tugagan. Qayta login qiling.', 'error');
-        throw new Error(data?.message || text || `AUTH ERROR: ${response.status}`);
+        throw new Error(data?.message || text || `AUTH ERROR ${response.status}`);
     }
 
     if (!response.ok) {
+        console.error('API ERROR:', response.status, text);
         throw new Error(data?.message || text || `Xatolik: ${response.status}`);
     }
 
@@ -894,6 +642,8 @@ async function api(path, options = {}) {
 function showMessage(text, type = 'success') {
     const message = $('#message');
 
+    if (!message) return;
+
     message.textContent = `${type === 'success' ? '✓' : '⚠'} ${text}`;
     message.className = `message ${type}`;
 
@@ -902,7 +652,7 @@ function showMessage(text, type = 'success') {
     showMessage.timer = setTimeout(() => {
         message.textContent = '';
         message.className = 'message';
-    }, 3500);
+    }, 4000);
 }
 
 function setLoading(container, text) {
@@ -911,7 +661,11 @@ function setLoading(container, text) {
 
 function showSection(sectionId) {
     $$('.section').forEach(section => section.classList.remove('active'));
-    $(`#${sectionId}`)?.classList.add('active');
+    const target = $(`#${sectionId}`);
+
+    if (target) {
+        target.classList.add('active');
+    }
 
     $$('.nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.section === sectionId);
@@ -975,7 +729,7 @@ function renderTests() {
             <article class="item-card">
                 <div>
                     <div class="item-title">${escapeHtml(title)}</div>
-                    <span class="tag tag-blue">${questionsCount} savol</span>
+                    <span class="tag">${questionsCount} savol</span>
                     <div class="muted">👨‍🏫 ${escapeHtml(teacher)}</div>
                 </div>
                 <button class="btn btn-primary" data-start-test="${escapeHtml(test.id)}">▶ Boshlash</button>
@@ -986,10 +740,14 @@ function renderTests() {
 
 async function startTest(testId) {
     try {
+        clearTimer();
+
         const test = await api(`/test/${encodeURIComponent(testId)}`);
         state.currentTest = test;
+
         renderSolveTest(test);
         showSection('solveSection');
+        startTimer(CONFIG.testMinutes);
     } catch (error) {
         showMessage(error.message || 'Testni ochib bo‘lmadi.', 'error');
     }
@@ -1010,7 +768,7 @@ function renderSolveTest(test) {
         <article class="item-card" style="margin-bottom:20px">
             <div>
                 <div class="item-title">${escapeHtml(test.title || 'Test')}</div>
-                <span class="tag tag-blue">${questions.length} savol</span>
+                <span class="tag">${questions.length} savol</span>
                 <div class="muted">👨‍🏫 ${escapeHtml(test.teacherFullName || test.professorFullName || '—')}</div>
             </div>
         </article>
@@ -1028,25 +786,32 @@ function renderSolveTest(test) {
 
     box.innerHTML = `
         ${header}
+        <div class="timer">⏰ Qolgan vaqt: <span id="timerBox">15:00</span></div>
+
         <form id="solveForm">
             ${questionsHtml}
+
             <div class="submit-bar">
                 <div class="muted">
                     Barcha savollarga javob bergandan so‘ng yakunlang.<br>
                     <b>${questions.length} ta savol</b>
                 </div>
-                <button type="submit" class="btn btn-success">💾 Yakunlash</button>
+                <button type="button" class="btn btn-success" id="finishBtn">💾 Yakunlash</button>
             </div>
         </form>
+
         <div id="instantResultBox"></div>
     `;
+
+    $('#finishBtn').addEventListener('click', submitTest);
 }
 
 function renderQuestionInput(question) {
     const id = question.id;
-    const answers = Array.isArray(question.allAnswers) ? shuffleArray(question.allAnswers) : [];
 
     if (question.questionType === 'SINGLE_CHOICE' || question.questionType === 'MULTIPLE_CHOICE') {
+        const answers = Array.isArray(question.allAnswers) ? shuffleArray(question.allAnswers) : [];
+
         if (!answers.length) {
             return '<p class="muted">Variantlar yo‘q.</p>';
         }
@@ -1091,6 +856,7 @@ function renderQuestionInput(question) {
                     <span class="option-letter">${index + 1}</span>
                     ${escapeHtml(left)}
                 </div>
+
                 <select name="q-${escapeHtml(id)}-match-${index}">
                     <option value="">Mos javobni tanlang…</option>
                     ${rightItems.map((right, rIndex) => `
@@ -1107,6 +873,8 @@ function renderQuestionInput(question) {
 }
 
 async function submitTest() {
+    if (state.submitting) return;
+
     const test = state.currentTest;
 
     if (!test?.id) {
@@ -1119,9 +887,14 @@ async function submitTest() {
         return showMessage('Kamida bitta savolga javob bering.', 'error');
     }
 
-    const submitButton = $('#solveForm button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.textContent = 'Hisoblanmoqda…';
+    const submitButton = $('#finishBtn');
+
+    state.submitting = true;
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Hisoblanmoqda…';
+    }
 
     try {
         const result = await api('/result', {
@@ -1132,13 +905,18 @@ async function submitTest() {
             })
         });
 
+        clearTimer();
         showInstantResult(result);
         await loadResults(false);
     } catch (error) {
         showMessage(error.message || 'Natija hisoblanmadi.', 'error');
     } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = '💾 Yakunlash';
+        state.submitting = false;
+
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = '💾 Yakunlash';
+        }
     }
 }
 
@@ -1146,39 +924,39 @@ function collectAnswers(questions) {
     const answers = [];
 
     questions.forEach(question => {
-        const id = question.id;
+        const id = String(question.id);
 
         if (question.questionType === 'SINGLE_CHOICE' || question.questionType === 'TRUE_FALSE') {
-            const checked = $(`input[name="q-${CSS.escape(String(id))}"]:checked`);
+            const checked = document.querySelector(`input[name="q-${CSS.escape(id)}"]:checked`);
 
             if (checked) {
                 answers.push({
-                    questionId: id,
+                    questionId: question.id,
                     answer: checked.value
                 });
             }
         }
 
         if (question.questionType === 'MULTIPLE_CHOICE') {
-            const checked = $$(`input[name="q-${CSS.escape(String(id))}"]:checked`)
+            const checked = Array.from(document.querySelectorAll(`input[name="q-${CSS.escape(id)}"]:checked`))
                 .map(input => input.value);
 
             if (checked.length) {
                 answers.push({
-                    questionId: id,
+                    questionId: question.id,
                     answer: checked.join(',')
                 });
             }
         }
 
         if (question.questionType === 'MATCHING') {
-            const pairs = $$(`select[name^="q-${CSS.escape(String(id))}-match-"]`)
+            const pairs = Array.from(document.querySelectorAll(`select[name^="q-${CSS.escape(id)}-match-"]`))
                 .map(select => select.value)
                 .filter(Boolean);
 
             if (pairs.length) {
                 answers.push({
-                    questionId: id,
+                    questionId: question.id,
                     answer: pairs.join(',')
                 });
             }
@@ -1194,6 +972,7 @@ function showInstantResult(result = {}) {
     $('#instantResultBox').innerHTML = `
         <div class="result-reveal">
             <h2>🎉 Natijangiz tayyor!</h2>
+
             <div class="result-grid">
                 <div class="result-mini">
                     <small>Ball</small>
@@ -1205,9 +984,10 @@ function showInstantResult(result = {}) {
                 </div>
                 <div class="result-mini">
                     <small>Foiz</small>
-                    <b style="color:var(--success)">${percent}%</b>
+                    <b style="color:#22c55e">${percent}%</b>
                 </div>
             </div>
+
             <p class="muted" style="margin-top:14px">📅 Topshirildi: ${formatDate(result.submittedAt)}</p>
         </div>
     `;
@@ -1250,12 +1030,10 @@ function renderResults() {
             <article class="result-card">
                 <div>
                     <div class="item-title">${escapeHtml(result.testTitle || result.testName || 'Test')}</div>
-                    <span class="tag tag-blue">${result.score ?? 0} / ${result.totalPoints ?? 0} ball</span>
+                    <span class="tag">${result.score ?? 0} / ${result.totalPoints ?? 0} ball</span>
                     <div class="muted">📅 ${formatDate(result.submittedAt)}</div>
                 </div>
-                <div class="percent-ring" style="--value:${percent * 3.6}deg">
-                    <span>${percent}%</span>
-                </div>
+                <b>${percent}%</b>
             </article>
         `;
     }).join('');
@@ -1293,14 +1071,48 @@ function getLetter(index) {
 }
 
 function formatDate(value) {
-    if (!value) {
-        return 'Hozir';
-    }
-
+    if (!value) return 'Hozir';
     return new Date(value).toLocaleString('uz-UZ');
 }
 
+function startTimer(minutes = 15) {
+    clearTimer();
+
+    state.timeLeft = minutes * 60;
+    updateTimerBox();
+
+    state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        updateTimerBox();
+
+        if (state.timeLeft <= 0) {
+            clearTimer();
+            showMessage('Vaqt tugadi. Test avtomatik yakunlanadi.', 'error');
+            submitTest();
+        }
+    }, 1000);
+}
+
+function updateTimerBox() {
+    const box = $('#timerBox');
+
+    if (!box) return;
+
+    const min = Math.floor(state.timeLeft / 60);
+    const sec = state.timeLeft % 60;
+
+    box.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function clearTimer() {
+    if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+    }
+}
+
 function logout() {
+    clearTimer();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = CONFIG.loginPage;
@@ -1336,16 +1148,9 @@ function bindEvents() {
 
         const name = event.target.name;
 
-        $$(`.answer-option input[name="${CSS.escape(name)}"]`).forEach(input => {
+        document.querySelectorAll(`.answer-option input[name="${CSS.escape(name)}"]`).forEach(input => {
             input.closest('.answer-option').classList.toggle('selected', input.checked);
         });
-    });
-
-    document.addEventListener('submit', event => {
-        if (event.target.id === 'solveForm') {
-            event.preventDefault();
-            submitTest();
-        }
     });
 
     $('#logoutBtn').addEventListener('click', logout);
