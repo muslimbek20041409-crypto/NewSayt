@@ -15,10 +15,7 @@
             color: white;
         }
 
-        .app {
-            display: flex;
-            min-height: 100vh;
-        }
+        .app { display: flex; min-height: 100vh; }
 
         .sidebar {
             width: 250px;
@@ -73,14 +70,8 @@
             margin-bottom: 25px;
         }
 
-        .title {
-            font-size: 30px;
-            margin-bottom: 6px;
-        }
-
-        .subtitle {
-            color: #94a3b8;
-        }
+        .title { font-size: 30px; margin-bottom: 6px; }
+        .subtitle { color: #94a3b8; }
 
         .student-pill {
             background: #1e293b;
@@ -96,42 +87,20 @@
             margin-bottom: 24px;
         }
 
-        .stat,
-        .card,
-        .item-card,
-        .question-card,
-        .result-card {
+        .stat, .card, .item-card, .question-card, .result-card {
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 18px;
         }
 
-        .stat {
-            padding: 18px;
-        }
+        .stat { padding: 18px; }
+        .stat__label { color: #94a3b8; font-size: 13px; }
+        .stat__value { font-size: 30px; font-weight: bold; margin-top: 8px; }
 
-        .stat__label {
-            color: #94a3b8;
-            font-size: 13px;
-        }
+        .section { display: none; }
+        .section.active { display: block; }
 
-        .stat__value {
-            font-size: 30px;
-            font-weight: bold;
-            margin-top: 8px;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .card {
-            padding: 22px;
-        }
+        .card { padding: 22px; }
 
         .section-head {
             display: flex;
@@ -153,10 +122,7 @@
         .btn-success { background: #16a34a; }
         .btn-soft { background: #334155; }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .message {
             min-height: 24px;
@@ -174,19 +140,15 @@
             margin-bottom: 18px;
         }
 
-        .hero h2 {
-            margin-bottom: 10px;
-        }
+        .hero h2 { margin-bottom: 10px; }
 
-        .quick-grid,
-        .profile-grid {
+        .quick-grid, .profile-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 14px;
         }
 
-        .quick-action,
-        .profile-card {
+        .quick-action, .profile-card {
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 16px;
@@ -194,9 +156,7 @@
             cursor: pointer;
         }
 
-        .quick-action:hover {
-            background: #1e293b;
-        }
+        .quick-action:hover { background: #1e293b; }
 
         .profile-card__label {
             color: #94a3b8;
@@ -204,17 +164,11 @@
             margin-bottom: 6px;
         }
 
-        .profile-card__value {
-            font-weight: bold;
-        }
+        .profile-card__value { font-weight: bold; }
 
-        .list {
-            display: grid;
-            gap: 12px;
-        }
+        .list { display: grid; gap: 12px; }
 
-        .item-card,
-        .result-card {
+        .item-card, .result-card {
             padding: 18px;
             display: flex;
             justify-content: space-between;
@@ -228,10 +182,7 @@
             margin-bottom: 8px;
         }
 
-        .muted {
-            color: #94a3b8;
-            font-size: 14px;
-        }
+        .muted { color: #94a3b8; font-size: 14px; }
 
         .empty {
             color: #94a3b8;
@@ -247,7 +198,10 @@
             color: white;
             font-size: 12px;
             margin-bottom: 6px;
+            margin-right: 5px;
         }
+
+        .tag-success { background: #16a34a; }
 
         .question-card {
             padding: 20px;
@@ -315,9 +269,7 @@
             border: 1px solid #334155;
         }
 
-        option {
-            background: #0f172a;
-        }
+        option { background: #0f172a; }
 
         .submit-bar {
             position: sticky;
@@ -367,9 +319,7 @@
             margin-bottom: 6px;
         }
 
-        .result-mini b {
-            font-size: 24px;
-        }
+        .result-mini b { font-size: 24px; }
 
         @media (max-width: 900px) {
             .sidebar {
@@ -377,9 +327,7 @@
                 width: 100%;
             }
 
-            .app {
-                display: block;
-            }
+            .app { display: block; }
 
             .main {
                 margin-left: 0;
@@ -599,9 +547,7 @@ function authHeaders() {
     const token = cleanToken(localStorage.getItem('token'));
 
     if (!token) {
-        return {
-            'Content-Type': 'application/json'
-        };
+        return { 'Content-Type': 'application/json' };
     }
 
     state.token = token;
@@ -641,7 +587,6 @@ async function api(path, options = {}) {
 
 function showMessage(text, type = 'success') {
     const message = $('#message');
-
     if (!message) return;
 
     message.textContent = `${type === 'success' ? '✓' : '⚠'} ${text}`;
@@ -661,11 +606,9 @@ function setLoading(container, text) {
 
 function showSection(sectionId) {
     $$('.section').forEach(section => section.classList.remove('active'));
-    const target = $(`#${sectionId}`);
 
-    if (target) {
-        target.classList.add('active');
-    }
+    const target = $(`#${sectionId}`);
+    if (target) target.classList.add('active');
 
     $$('.nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.section === sectionId);
@@ -712,6 +655,12 @@ async function loadTests() {
     }
 }
 
+function hasSubmitted(testId) {
+    return state.results.some(result =>
+        String(result.testId) === String(testId)
+    );
+}
+
 function renderTests() {
     const list = $('#testsList');
 
@@ -724,15 +673,22 @@ function renderTests() {
         const questionsCount = Array.isArray(test.questions) ? test.questions.length : 0;
         const title = test.title || test.name || 'Nomsiz test';
         const teacher = test.teacherFullName || test.professorFullName || test.teacherName || '—';
+        const submitted = hasSubmitted(test.id);
 
         return `
             <article class="item-card">
                 <div>
                     <div class="item-title">${escapeHtml(title)}</div>
                     <span class="tag">${questionsCount} savol</span>
+                    ${submitted ? '<span class="tag tag-success">Oldin ishlangan</span>' : ''}
                     <div class="muted">👨‍🏫 ${escapeHtml(teacher)}</div>
                 </div>
-                <button class="btn btn-primary" data-start-test="${escapeHtml(test.id)}">▶ Boshlash</button>
+
+                ${
+                    submitted
+                        ? `<button class="btn btn-success" data-start-test="${escapeHtml(test.id)}">🔁 Qayta ishlash</button>`
+                        : `<button class="btn btn-primary" data-start-test="${escapeHtml(test.id)}">▶ Boshlash</button>`
+                }
             </article>
         `;
     }).join('');
@@ -852,7 +808,7 @@ function renderQuestionInput(question) {
 
         return leftItems.map((left, index) => `
             <div class="match-row">
-                <div class="match-left">
+                <div>
                     <span class="option-letter">${index + 1}</span>
                     ${escapeHtml(left)}
                 </div>
@@ -907,7 +863,10 @@ async function submitTest() {
 
         clearTimer();
         showInstantResult(result);
+
         await loadResults(false);
+        renderTests();
+
     } catch (error) {
         showMessage(error.message || 'Natija hisoblanmadi.', 'error');
     } finally {
@@ -1008,6 +967,7 @@ async function loadResults(render = true) {
         state.results = normalizeArray(data);
         renderResults();
         updateStats();
+        renderTests();
     } catch (error) {
         if (render) {
             list.innerHTML = `<p class="empty">${escapeHtml(error.message || 'Natijalarni yuklab bo‘lmadi.')}</p>`;
@@ -1125,13 +1085,8 @@ function bindEvents() {
         if (sectionTrigger) {
             const action = sectionTrigger.dataset.action;
 
-            if (action === 'loadTests') {
-                loadTests();
-            }
-
-            if (action === 'loadResults') {
-                loadResults();
-            }
+            if (action === 'loadTests') loadTests();
+            if (action === 'loadResults') loadResults();
 
             showSection(sectionTrigger.dataset.section);
         }
@@ -1170,8 +1125,8 @@ async function init() {
     bindEvents();
 
     await Promise.allSettled([
-        loadTests(),
-        loadResults(false)
+        loadResults(false),
+        loadTests()
     ]);
 
     showSection('dashboard');
