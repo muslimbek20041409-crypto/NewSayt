@@ -17,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Entity
+@Table(name = "questions")
 public class Question {
 
     @Id
@@ -36,53 +37,35 @@ public class Question {
     @Column(nullable = false)
     private QuestionType questionType;
 
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_all_answers",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @OrderColumn(name = "answer_order")
     @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "question_all_answers", joinColumns = @JoinColumn(name = "question_id"))
+    @OrderColumn(name = "answer_order")
     private List<String> allAnswers = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_true_answers",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @OrderColumn(name = "answer_order")
     @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "question_true_answers", joinColumns = @JoinColumn(name = "question_id"))
+    @OrderColumn(name = "answer_order")
     private List<String> trueAnswers = new ArrayList<>();
 
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_left_items",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @OrderColumn(name = "left_order")
     @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "question_left_items", joinColumns = @JoinColumn(name = "question_id"))
+    @OrderColumn(name = "left_order")
     private List<String> leftItems = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_right_items",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @OrderColumn(name = "right_order")
     @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "question_right_items", joinColumns = @JoinColumn(name = "question_id"))
+    @OrderColumn(name = "right_order")
     private List<String> rightItems = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "question_correct_pairs",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @OrderColumn(name = "pair_order")
     @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "question_correct_pairs", joinColumns = @JoinColumn(name = "question_id"))
+    @OrderColumn(name = "pair_order")
     private List<String> correctPairs = new ArrayList<>();
-
 
     @Column(length = 20)
     private String trueFalseAnswer;
