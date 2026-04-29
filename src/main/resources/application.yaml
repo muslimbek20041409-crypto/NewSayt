@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8081}   # Railway o‘zi port beradi
+  port: ${PORT:8080}   # Railway o‘zi port beradi
   servlet:
     context-path: /api/v1
 
