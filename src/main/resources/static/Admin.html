@@ -95,6 +95,20 @@
             font-size: 14px;
         }
 
+        .message {
+            margin-bottom: 18px;
+            min-height: 24px;
+            font-weight: 800;
+        }
+
+        .message.success {
+            color: #86efac;
+        }
+
+        .message.error {
+            color: #fca5a5;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -183,6 +197,12 @@
 
         .btn:hover {
             transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-primary {
@@ -311,6 +331,8 @@
         <div class="badge">ADMIN MODE</div>
     </div>
 
+    <div id="message" class="message"></div>
+
     <div class="stats">
         <div class="stat-card">
             <span>Teachers</span>
@@ -330,18 +352,15 @@
         </div>
     </div>
 
-    <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
         <div class="section-header">
             <h2>Umumiy boshqaruv</h2>
         </div>
         <p class="muted">
             Bu panel orqali admin teacher, student, admin va testlarni boshqaradi.
-            Admin test yaratishi, tahrirlashi, savol qo‘shishi va keraksiz testlarni o‘chirishi mumkin.
         </p>
     </section>
 
-    <!-- TESTS -->
     <section id="tests" class="section">
         <div class="section-header">
             <h2>Testlar boshqaruvi</h2>
@@ -378,10 +397,10 @@
         <div id="testsList" class="list"></div>
     </section>
 
-    <!-- TEACHERS -->
     <section id="teachers" class="section">
         <div class="section-header">
             <h2>Teachers</h2>
+            <button class="btn btn-soft" onclick="loadTeachers()">🔄 Refresh</button>
         </div>
 
         <div class="grid-form">
@@ -391,25 +410,25 @@
             <input id="tPass" type="password" placeholder="Password">
         </div>
 
-        <button class="btn btn-green" onclick="createTeacher()">Create Teacher</button>
+        <button id="createTeacherBtn" class="btn btn-green" onclick="createTeacher()">Create Teacher</button>
 
         <br><br>
         <div id="teachersList" class="list"></div>
     </section>
 
-    <!-- STUDENTS -->
     <section id="students" class="section">
         <div class="section-header">
             <h2>Students</h2>
+            <button class="btn btn-soft" onclick="loadStudents()">🔄 Refresh</button>
         </div>
 
         <div id="studentsList" class="list"></div>
     </section>
 
-    <!-- ADMINS -->
     <section id="admins" class="section">
         <div class="section-header">
             <h2>Admins</h2>
+            <button class="btn btn-soft" onclick="loadAdmins()">🔄 Refresh</button>
         </div>
 
         <div class="grid-form">
@@ -418,7 +437,7 @@
             <input id="aPass" type="password" placeholder="Password">
         </div>
 
-        <button class="btn btn-green" onclick="createAdmin()">Create Admin</button>
+        <button id="createAdminBtn" class="btn btn-green" onclick="createAdmin()">Create Admin</button>
 
         <br><br>
         <div id="adminsList" class="list"></div>
@@ -427,21 +446,94 @@
 </main>
 
 <script>
-    const BASE = "/api/v1";
-    const token = localStorage.getItem("token");
+    const BASE = window.location.origin + "/api/v1";
 
+    let token = cleanToken(localStorage.getItem("token"));
     let teachersCache = [];
     let editingTestId = null;
 
     if (!token) {
-        location.href = "/api/v1/Sign In.html";
+        location.href = "/api/v1/sign-in.html";
+    }
+
+    function cleanToken(value) {
+        if (!value || value === "null" || value === "undefined") return null;
+        return String(value).replace(/^Bearer\s+/i, "").trim();
     }
 
     function headers() {
+        token = cleanToken(localStorage.getItem("token"));
+
         return {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
         };
+    }
+
+    function showMessage(text, type = "success") {
+        const box = document.getElementById("message");
+        box.innerText = (type === "success" ? "✓ " : "⚠ ") + text;
+        box.className = "message " + type;
+
+        clearTimeout(showMessage.timer);
+        showMessage.timer = setTimeout(() => {
+            box.innerText = "";
+            box.className = "message";
+        }, 5000);
+    }
+
+    async function api(path, options = {}) {
+        const res = await fetch(BASE + path, {
+            ...options,
+            headers: {
+                ...headers(),
+                ...(options.headers || {})
+            }
+        });
+
+        const text = await res.text();
+        let data = null;
+
+        try {
+            data = text ? JSON.parse(text) : null;
+        } catch {
+            data = text;
+        }
+
+        if (res.status === 401 || res.status === 403) {
+            console.error("AUTH ERROR:", res.status, data);
+            showMessage("Admin token yoki role xato. Qayta login qiling.", "error");
+            throw new Error("AUTH ERROR " + res.status);
+        }
+
+        if (!res.ok) {
+            console.error("API ERROR:", path, res.status, data);
+            const msg =
+                (typeof data === "object" && data?.message) ||
+                (typeof data === "string" && data) ||
+                "Server xatosi: " + res.status;
+            showMessage(msg, "error");
+            throw new Error(msg);
+        }
+
+        return data;
+    }
+
+    function getArray(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.content)) return data.content;
+        if (Array.isArray(data.data)) return data.data;
+        return [];
+    }
+
+    function escapeHtml(value = "") {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
     }
 
     function showSection(id, btn) {
@@ -449,75 +541,77 @@
         document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
 
         document.getElementById(id).classList.add("active");
-        btn.classList.add("active");
+        if (btn) btn.classList.add("active");
 
         document.getElementById("pageTitle").innerText =
             id.charAt(0).toUpperCase() + id.slice(1);
+
+        if (id === "teachers") loadTeachers();
+        if (id === "students") loadStudents();
+        if (id === "admins") loadAdmins();
+        if (id === "tests") loadTests();
     }
 
     function logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        location.href = "/api/v1/Sign In.html";
-    }
-
-    async function safeJson(res) {
-        const text = await res.text();
-        return text ? JSON.parse(text) : null;
-    }
-
-    function getArray(data) {
-        if (!data) return [];
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data.content)) return data.content;
-        return [];
+        location.href = "/api/v1/sign-in.html";
     }
 
     // ================= TEACHERS =================
 
     async function loadTeachers() {
-        const res = await fetch(BASE + "/teacher", { headers: headers() });
-        const data = getArray(await safeJson(res));
-
-        teachersCache = data;
-        document.getElementById("teacherCount").innerText = data.length;
-
-        const select = document.getElementById("testTeacherId");
-        select.innerHTML = `<option value="">Teacher tanlang</option>`;
-
-        data.forEach(t => {
-            select.innerHTML += `
-                <option value="${t.id}">
-                    ${t.fullName || t.firstName || t.username || "Teacher"}
-                </option>
-            `;
-        });
-
         const list = document.getElementById("teachersList");
-        list.innerHTML = "";
+        list.innerHTML = `<p class="muted">Teacherlar yuklanmoqda...</p>`;
 
-        if (data.length === 0) {
-            list.innerHTML = `<p class="muted">Teacher topilmadi.</p>`;
-            return;
+        try {
+            const data = getArray(await api("/teacher"));
+
+            teachersCache = data;
+            document.getElementById("teacherCount").innerText = data.length;
+
+            const select = document.getElementById("testTeacherId");
+            select.innerHTML = `<option value="">Teacher tanlang</option>`;
+
+            data.forEach(t => {
+                select.innerHTML += `
+                    <option value="${escapeHtml(t.id)}">
+                        ${escapeHtml(t.fullName || t.firstName || t.username || "Teacher")}
+                    </option>
+                `;
+            });
+
+            list.innerHTML = "";
+
+            if (data.length === 0) {
+                list.innerHTML = `<p class="muted">Teacher topilmadi. Yangi teacher yarating.</p>`;
+                return;
+            }
+
+            data.forEach(t => {
+                list.innerHTML += `
+                    <div class="item">
+                        <div>
+                            <div class="item-title">${escapeHtml(t.fullName || t.firstName || t.username || "-")}</div>
+                            <div class="muted">Username: ${escapeHtml(t.username || "-")}</div>
+                            <div class="muted">Phone: ${escapeHtml(t.phoneNumber || "-")}</div>
+                            <div class="muted">ID: ${escapeHtml(t.id || "-")}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-red" onclick="deleteTeacher('${escapeHtml(t.id)}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) {
+            list.innerHTML = `<p class="muted">Teacherlarni yuklab bo‘lmadi: ${escapeHtml(e.message)}</p>`;
         }
-
-        data.forEach(t => {
-            list.innerHTML += `
-                <div class="item">
-                    <div>
-                        <div class="item-title">${t.fullName || t.firstName || "-"}</div>
-                        <div class="muted">Username: ${t.username || "-"}</div>
-                        <div class="muted">Phone: ${t.phoneNumber || "-"}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-red" onclick="deleteTeacher('${t.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
     }
 
     async function createTeacher() {
+        const btn = document.getElementById("createTeacherBtn");
+
         const data = {
             fullName: document.getElementById("tFullName").value.trim(),
             phoneNumber: document.getElementById("tPhone").value.trim(),
@@ -525,134 +619,195 @@
             password: document.getElementById("tPass").value
         };
 
-        await fetch(BASE + "/teacher", {
-            method: "POST",
-            headers: headers(),
-            body: JSON.stringify(data)
-        });
+        if (!data.fullName || !data.username || !data.password) {
+            showMessage("Full name, username va password majburiy.", "error");
+            return;
+        }
 
-        document.getElementById("tFullName").value = "";
-        document.getElementById("tPhone").value = "";
-        document.getElementById("tUser").value = "";
-        document.getElementById("tPass").value = "";
+        try {
+            btn.disabled = true;
+            btn.innerText = "Creating...";
 
-        loadTeachers();
+            await api("/teacher", {
+                method: "POST",
+                body: JSON.stringify(data)
+            });
+
+            document.getElementById("tFullName").value = "";
+            document.getElementById("tPhone").value = "";
+            document.getElementById("tUser").value = "";
+            document.getElementById("tPass").value = "";
+
+            showMessage("Teacher yaratildi.");
+            await loadTeachers();
+
+        } catch (e) {
+            showMessage("Teacher yaratilmadi: " + e.message, "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Create Teacher";
+        }
     }
 
     async function deleteTeacher(id) {
+        if (!id) return;
         if (!confirm("Teacher o‘chirilsinmi?")) return;
 
-        await fetch(BASE + "/teacher/" + id, {
-            method: "DELETE",
-            headers: headers()
-        });
+        try {
+            await api("/teacher/" + encodeURIComponent(id), {
+                method: "DELETE"
+            });
 
-        loadTeachers();
+            showMessage("Teacher o‘chirildi.");
+            await loadTeachers();
+            await loadTests();
+
+        } catch (e) {
+            showMessage("Teacher o‘chirilmadi: " + e.message, "error");
+        }
     }
 
     // ================= STUDENTS =================
 
     async function loadStudents() {
-        const res = await fetch(BASE + "/students", { headers: headers() });
-        const data = getArray(await safeJson(res));
-
-        document.getElementById("studentCount").innerText = data.length;
-
         const list = document.getElementById("studentsList");
-        list.innerHTML = "";
+        list.innerHTML = `<p class="muted">Studentlar yuklanmoqda...</p>`;
 
-        if (data.length === 0) {
-            list.innerHTML = `<p class="muted">Student topilmadi.</p>`;
-            return;
+        try {
+            const data = getArray(await api("/students"));
+            document.getElementById("studentCount").innerText = data.length;
+
+            list.innerHTML = "";
+
+            if (data.length === 0) {
+                list.innerHTML = `<p class="muted">Student topilmadi.</p>`;
+                return;
+            }
+
+            data.forEach(s => {
+                list.innerHTML += `
+                    <div class="item">
+                        <div>
+                            <div class="item-title">${escapeHtml(s.fullName || s.firstName || s.username || "-")}</div>
+                            <div class="muted">Username: ${escapeHtml(s.username || "-")}</div>
+                            <div class="muted">Phone: ${escapeHtml(s.phoneNumber || "-")}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-red" onclick="deleteStudent('${escapeHtml(s.id)}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) {
+            list.innerHTML = `<p class="muted">Studentlarni yuklab bo‘lmadi: ${escapeHtml(e.message)}</p>`;
         }
-
-        data.forEach(s => {
-            list.innerHTML += `
-                <div class="item">
-                    <div>
-                        <div class="item-title">${s.fullName || s.firstName || "-"}</div>
-                        <div class="muted">Username: ${s.username || "-"}</div>
-                        <div class="muted">Phone: ${s.phoneNumber || "-"}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-red" onclick="deleteStudent('${s.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
     }
 
     async function deleteStudent(id) {
         if (!confirm("Student o‘chirilsinmi?")) return;
 
-        await fetch(BASE + "/students/" + id, {
-            method: "DELETE",
-            headers: headers()
-        });
+        try {
+            await api("/students/" + encodeURIComponent(id), {
+                method: "DELETE"
+            });
 
-        loadStudents();
+            showMessage("Student o‘chirildi.");
+            await loadStudents();
+
+        } catch (e) {
+            showMessage("Student o‘chirilmadi: " + e.message, "error");
+        }
     }
 
     // ================= ADMINS =================
 
     async function loadAdmins() {
-        const res = await fetch(BASE + "/admin", { headers: headers() });
-        const data = getArray(await safeJson(res));
-
-        document.getElementById("adminCount").innerText = data.length;
-
         const list = document.getElementById("adminsList");
-        list.innerHTML = "";
+        list.innerHTML = `<p class="muted">Adminlar yuklanmoqda...</p>`;
 
-        if (data.length === 0) {
-            list.innerHTML = `<p class="muted">Admin topilmadi.</p>`;
-            return;
+        try {
+            const data = getArray(await api("/admin"));
+            document.getElementById("adminCount").innerText = data.length;
+
+            list.innerHTML = "";
+
+            if (data.length === 0) {
+                list.innerHTML = `<p class="muted">Admin topilmadi.</p>`;
+                return;
+            }
+
+            data.forEach(a => {
+                list.innerHTML += `
+                    <div class="item">
+                        <div>
+                            <div class="item-title">${escapeHtml(a.fullName || a.username || "-")}</div>
+                            <div class="muted">Username: ${escapeHtml(a.username || "-")}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-red" onclick="deleteAdmin('${escapeHtml(a.id)}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) {
+            list.innerHTML = `<p class="muted">Adminlarni yuklab bo‘lmadi: ${escapeHtml(e.message)}</p>`;
         }
-
-        data.forEach(a => {
-            list.innerHTML += `
-                <div class="item">
-                    <div>
-                        <div class="item-title">${a.fullName || "-"}</div>
-                        <div class="muted">Username: ${a.username || "-"}</div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-red" onclick="deleteAdmin('${a.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
     }
 
     async function createAdmin() {
+        const btn = document.getElementById("createAdminBtn");
+
         const data = {
             fullName: document.getElementById("aFullName").value.trim(),
             username: document.getElementById("aUser").value.trim(),
             password: document.getElementById("aPass").value
         };
 
-        await fetch(BASE + "/admin", {
-            method: "POST",
-            headers: headers(),
-            body: JSON.stringify(data)
-        });
+        if (!data.fullName || !data.username || !data.password) {
+            showMessage("Full name, username va password majburiy.", "error");
+            return;
+        }
 
-        document.getElementById("aFullName").value = "";
-        document.getElementById("aUser").value = "";
-        document.getElementById("aPass").value = "";
+        try {
+            btn.disabled = true;
+            btn.innerText = "Creating...";
 
-        loadAdmins();
+            await api("/admin", {
+                method: "POST",
+                body: JSON.stringify(data)
+            });
+
+            document.getElementById("aFullName").value = "";
+            document.getElementById("aUser").value = "";
+            document.getElementById("aPass").value = "";
+
+            showMessage("Admin yaratildi.");
+            await loadAdmins();
+
+        } catch (e) {
+            showMessage("Admin yaratilmadi: " + e.message, "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Create Admin";
+        }
     }
 
     async function deleteAdmin(id) {
         if (!confirm("Admin o‘chirilsinmi?")) return;
 
-        await fetch(BASE + "/admin/" + id, {
-            method: "DELETE",
-            headers: headers()
-        });
+        try {
+            await api("/admin/" + encodeURIComponent(id), {
+                method: "DELETE"
+            });
 
-        loadAdmins();
+            showMessage("Admin o‘chirildi.");
+            await loadAdmins();
+
+        } catch (e) {
+            showMessage("Admin o‘chirilmadi: " + e.message, "error");
+        }
     }
 
     // ================= TESTS =================
@@ -683,10 +838,11 @@
         box.innerHTML = `
             <h4>Savol</h4>
 
-            <textarea class="qText" placeholder="Savol matni">${q.questionText || ""}</textarea>
+            <textarea class="qText" placeholder="Savol matni">${escapeHtml(q.questionText || "")}</textarea>
 
             <div class="grid-form">
                 <select class="qType">
+                    <option value="SINGLE_CHOICE" ${q.questionType === "SINGLE_CHOICE" ? "selected" : ""}>Single choice</option>
                     <option value="MULTIPLE_CHOICE" ${q.questionType === "MULTIPLE_CHOICE" ? "selected" : ""}>Multiple choice</option>
                     <option value="TRUE_FALSE" ${q.questionType === "TRUE_FALSE" ? "selected" : ""}>True / False</option>
                     <option value="MATCHING" ${q.questionType === "MATCHING" ? "selected" : ""}>Matching</option>
@@ -697,15 +853,20 @@
                 <button type="button" class="btn btn-red" onclick="this.closest('.question-box').remove()">Savolni o‘chirish</button>
             </div>
 
-            <input class="qAllAnswers" placeholder="Variantlar: A,B,C,D" value="${Array.isArray(q.allAnswers) ? q.allAnswers.join(",") : ""}">
-            <input class="qTrueAnswers" placeholder="To‘g‘ri javob: A yoki A,C" value="${Array.isArray(q.trueAnswers) ? q.trueAnswers.join(",") : ""}">
-            <input class="qTrueFalse" placeholder="True/False javob: TRUE yoki FALSE" value="${q.trueFalseAnswer || ""}">
-            <input class="qLeftItems" placeholder="Matching chap: 1,2,3" value="${Array.isArray(q.leftItems) ? q.leftItems.join(",") : ""}">
-            <input class="qRightItems" placeholder="Matching o‘ng: A,B,C" value="${Array.isArray(q.rightItems) ? q.rightItems.join(",") : ""}">
-            <input class="qCorrectPairs" placeholder="Juftliklar: 1-A,2-B,3-C" value="${Array.isArray(q.correctPairs) ? q.correctPairs.join(",") : ""}">
+            <input class="qAllAnswers" placeholder="Variantlar: Paris,London,Berlin" value="${Array.isArray(q.allAnswers) ? escapeHtml(q.allAnswers.join(",")) : ""}">
+            <input class="qTrueAnswers" placeholder="To‘g‘ri javob: Paris yoki Paris,Berlin" value="${Array.isArray(q.trueAnswers) ? escapeHtml(q.trueAnswers.join(",")) : ""}">
+            <input class="qTrueFalse" placeholder="True/False javob: TRUE yoki FALSE" value="${escapeHtml(q.trueFalseAnswer || "")}">
+            <input class="qLeftItems" placeholder="Matching chap: Uzbekistan,France" value="${Array.isArray(q.leftItems) ? escapeHtml(q.leftItems.join(",")) : ""}">
+            <input class="qRightItems" placeholder="Matching o‘ng: Tashkent,Paris" value="${Array.isArray(q.rightItems) ? escapeHtml(q.rightItems.join(",")) : ""}">
+            <input class="qCorrectPairs" placeholder="Juftliklar: Uzbekistan=Tashkent,France=Paris" value="${Array.isArray(q.correctPairs) ? escapeHtml(q.correctPairs.join(",")) : ""}">
         `;
 
         document.getElementById("questionsContainer").appendChild(box);
+    }
+
+    function splitValue(value) {
+        if (!value || !value.trim()) return [];
+        return value.split(",").map(v => v.trim()).filter(v => v.length > 0);
     }
 
     function collectQuestions() {
@@ -716,12 +877,9 @@
                 questionText: box.querySelector(".qText").value.trim(),
                 questionType: box.querySelector(".qType").value,
                 points: Number(box.querySelector(".qPoints").value || 1),
-
                 allAnswers: splitValue(box.querySelector(".qAllAnswers").value),
                 trueAnswers: splitValue(box.querySelector(".qTrueAnswers").value),
-
                 trueFalseAnswer: box.querySelector(".qTrueFalse").value.trim(),
-
                 leftItems: splitValue(box.querySelector(".qLeftItems").value),
                 rightItems: splitValue(box.querySelector(".qRightItems").value),
                 correctPairs: splitValue(box.querySelector(".qCorrectPairs").value)
@@ -729,83 +887,91 @@
         });
     }
 
-    function splitValue(value) {
-        if (!value || !value.trim()) return [];
-        return value.split(",").map(v => v.trim()).filter(v => v.length > 0);
-    }
-
     async function saveTest() {
         const data = {
             title: document.getElementById("testTitle").value.trim(),
             description: document.getElementById("testDescription").value.trim(),
             questionLevel: document.getElementById("testLevel").value,
-            teacherId: document.getElementById("testTeacherId").value,
+            teacherId: document.getElementById("testTeacherId").value || null,
             questions: collectQuestions()
         };
 
         if (!data.title) {
-            alert("Test nomini kiriting.");
+            showMessage("Test nomini kiriting.", "error");
             return;
         }
 
         if (data.questions.length === 0) {
-            alert("Kamida bitta savol qo‘shing.");
+            showMessage("Kamida bitta savol qo‘shing.", "error");
             return;
         }
 
-        const url = editingTestId
-            ? BASE + "/test/" + editingTestId
-            : BASE + "/test";
+        const path = editingTestId
+            ? "/test/" + encodeURIComponent(editingTestId)
+            : "/test";
 
         const method = editingTestId ? "PUT" : "POST";
 
-        const res = await fetch(url, {
-            method: method,
-            headers: headers(),
-            body: JSON.stringify(data)
-        });
+        try {
+            await api(path, {
+                method,
+                body: JSON.stringify(data)
+            });
 
-        if (!res.ok) {
-            alert("Xatolik: backend DTO yoki endpoint mos kelmayapti.");
-            return;
+            closeTestForm();
+            showMessage("Test saqlandi.");
+            await loadTests();
+
+        } catch (e) {
+            showMessage("Test saqlanmadi: " + e.message, "error");
         }
-
-        closeTestForm();
-        loadTests();
     }
 
     async function loadTests() {
-        const res = await fetch(BASE + "/test", { headers: headers() });
-        const data = await safeJson(res);
-        const tests = getArray(data);
-
-        document.getElementById("testCount").innerText = tests.length;
-
         const list = document.getElementById("testsList");
-        list.innerHTML = "";
+        list.innerHTML = `<p class="muted">Testlar yuklanmoqda...</p>`;
 
-        if (tests.length === 0) {
-            list.innerHTML = `<p class="muted">Test topilmadi.</p>`;
-            return;
+        try {
+            const tests = getArray(await api("/test"));
+            document.getElementById("testCount").innerText = tests.length;
+
+            list.innerHTML = "";
+
+            if (tests.length === 0) {
+                list.innerHTML = `<p class="muted">Test topilmadi.</p>`;
+                return;
+            }
+
+            tests.forEach(t => {
+                list.innerHTML += `
+                    <div class="item">
+                        <div>
+                            <div class="item-title">${escapeHtml(t.title || t.questionText || "Nomsiz test")}</div>
+                            <div class="muted">Teacher: ${escapeHtml(t.teacherFullName || t.professorFullName || t.teacherName || "-")}</div>
+                            <div class="muted">Savollar: ${Array.isArray(t.questions) ? t.questions.length : 0}</div>
+                            <div class="muted">Level: ${escapeHtml(t.questionLevel || t.level || "-")}</div>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-yellow" onclick='editTestFromId("${escapeHtml(t.id)}")'>Edit</button>
+                            <button class="btn btn-red" onclick="deleteTest('${escapeHtml(t.id)}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) {
+            list.innerHTML = `<p class="muted">Testlarni yuklab bo‘lmadi: ${escapeHtml(e.message)}</p>`;
         }
+    }
 
-        tests.forEach(t => {
-            list.innerHTML += `
-                <div class="item">
-                    <div>
-                        <div class="item-title">${t.title || t.questionText || "Nomsiz test"}</div>
-                        <div class="muted">Teacher: ${t.teacherFullName || t.professorFullName || "-"}</div>
-                        <div class="muted">Savollar: ${Array.isArray(t.questions) ? t.questions.length : 0}</div>
-                        <div class="muted">Level: ${t.questionLevel || t.level || "-"}</div>
-                    </div>
-
-                    <div class="actions">
-                        <button class="btn btn-yellow" onclick='editTest(${JSON.stringify(t).replaceAll("'", "&#39;")})'>Edit</button>
-                        <button class="btn btn-red" onclick="deleteTest('${t.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
+    async function editTestFromId(id) {
+        try {
+            const t = await api("/test/" + encodeURIComponent(id));
+            editTest(t);
+        } catch (e) {
+            showMessage("Testni ochib bo‘lmadi: " + e.message, "error");
+        }
     }
 
     function editTest(t) {
@@ -833,19 +999,26 @@
     async function deleteTest(id) {
         if (!confirm("Test o‘chirilsinmi?")) return;
 
-        await fetch(BASE + "/test/" + id, {
-            method: "DELETE",
-            headers: headers()
-        });
+        try {
+            await api("/test/" + encodeURIComponent(id), {
+                method: "DELETE"
+            });
 
-        loadTests();
+            showMessage("Test o‘chirildi.");
+            await loadTests();
+
+        } catch (e) {
+            showMessage("Test o‘chirilmadi: " + e.message, "error");
+        }
     }
 
     async function init() {
-        await loadTeachers();
-        await loadStudents();
-        await loadAdmins();
-        await loadTests();
+        await Promise.allSettled([
+            loadTeachers(),
+            loadStudents(),
+            loadAdmins(),
+            loadTests()
+        ]);
     }
 
     init();
