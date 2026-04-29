@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.5'
+    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -18,43 +18,43 @@ repositories {
 }
 
 dependencies {
-    // Web
-    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // Template
+    // WEB
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    // Data
+    // DATA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // Validation & Mail
+    // VALIDATION
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    // Security
+    // SECURITY
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    // Dev
+    // DEVTOOLS
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    // Lombok
+    // LOMBOK
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // Database drivers
+    // DB
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'org.postgresql:postgresql'
 
-    // Swagger (faqat bittasini tanla — hozir springdoc qoldirdim)
+    // SWAGGER
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
-    // Utils
+    // UTIL
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'net.coobird:thumbnailator:0.4.8'
     implementation 'org.modelmapper:modelmapper:3.2.0'
 
-    //Telegram
+    // TELEGRAM
     implementation 'org.telegram:telegrambots:6.9.7.1'
     implementation 'org.telegram:telegrambots-spring-boot-starter:6.9.7.1'
 
@@ -63,12 +63,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // Redis client (agar kerak bo‘lsa)
+    // REDIS CLIENT
     implementation 'redis.clients:jedis:5.1.0'
 
-    // Test
+    // TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    //Modemapper
-    implementation 'org.modelmapper:modelmapper:3.2.0'
-};
+}
